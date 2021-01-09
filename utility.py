@@ -1,29 +1,31 @@
-
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.preprocessing import image
-from keras.utils import to_categorical
-from collections import defaultdict
-
-from matplotlib.image import imread
-import matplotlib.pyplot as plt
-from copy import deepcopy
-from natsort import natsorted, ns
-import tensorflow as tf
-import numpy as np
-import chess.svg
-import chess
 import glob
+import io
 import time
-import sys
+
+import chess
+import chess.svg
 import cv2
-import os
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from PIL import Image
+from cairosvg import svg2png
+from natsort import natsorted
+from tensorflow.keras.preprocessing import image
 
-import keras
-from keras import layers
-from keras import models
-from keras.optimizers import Adam
-from keras.applications.inception_resnet_v2 import InceptionResNetV2
 
+def display_fen_board(fen, save=False):
+    board = chess.Board(fen)
+    svg = chess.svg.board(board=board)
+
+    if save:
+        svg2png(bytestring=bytes(svg, 'UTF-8'), write_to="result.png")
+    else:
+        img = io.BytesIO()
+        svg2png(bytestring=bytes(svg, 'UTF-8'), write_to=img)
+        img = Image.open(img)
+        img.show()
+        img.close()
 
 
 def print_points(plist, img):
@@ -43,6 +45,13 @@ def chunks(l, n):
     n = max(1, n)
     return (l[i:i+n] for i in range(0, len(l), n))
 
+
+def save_history(history):
+    t = time.time()
+    df = pd.DataFrame.from_dict(history)
+    history_path = '/history/{}_history.csv'.format(int(t))
+    df.to_csv(history_path)
+    print("History saved to " + history_path)
 
 #########################################################  Plotting ###################################################
 
