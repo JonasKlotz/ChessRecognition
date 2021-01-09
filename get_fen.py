@@ -1,86 +1,15 @@
 #!/usr/bin/env python
 # coding: utf-8
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.preprocessing import image
 from collections import defaultdict
 
-from matplotlib.image import imread
-import matplotlib.pyplot as plt
-from copy import deepcopy
-from natsort import natsorted, ns
-import tensorflow as tf
 import numpy as np
-import chess
-import glob
-import time
-import sys
-import cv2
-import os
 
-import keras
-from keras import layers
-from keras import models
-from keras.optimizers import Adam
-from keras.applications.inception_resnet_v2 import InceptionResNetV2
-
+import get_board_colors
 import model
 import utility
 
 fen_gen_small = ["b", "1", "k", "n", "p", "q", "r", ]
-
-
-def find_field_colour(img, show=False):
-    """ input field output color
-    1 is white 0 is black
-    """
-
-    gray_square = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    blur = cv2.GaussianBlur(gray_square, (5, 5), 0)
-    _, img_binary = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
-    # remove noise
-    morph_kernel = np.ones((15, 15), np.uint8)
-    img_binary = cv2.morphologyEx(img_binary, cv2.MORPH_CLOSE, morph_kernel)
-
-    rows, cols = img_binary.shape
-
-    if show == True:
-        fig = plt.figure(figsize=(3, 3))
-        plt.imshow(img)
-        plt.show()
-
-    n_white_pix = cv2.countNonZero(img_binary)
-    n_black_pix = rows * cols - n_white_pix
-
-    if n_white_pix > n_black_pix:
-        return 1
-    return 0
-
-
-def compare_board(board_to_compare):
-    """
-    #returns the color board which is closer to given board
-    1 is white 0 is black
-    """
-    board_1 = [0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0,
-               1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0]
-    board_2 = [1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1,
-               0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1]
-
-    if np.sum(board_to_compare == board_1) > np.sum(board_to_compare == board_2):
-        return board_1
-    return board_2
-
-
-def find_board_colour(square_list):
-    """ gets quares as input
-    collects their color
-    """
-    board_color = np.zeros(len(square_list), dtype=int)  # für jedes square eine liste
-    i = 0
-    for i in range(len(square_list)):
-        board_color[i] = find_field_colour(square_list[i])
-    return compare_board(board_color)
+# 1 is empty
 
 
 """
@@ -101,48 +30,9 @@ def collect_emtpy_squares(predictions):
     return empty_fields
 
 
-def get_piece_colors(square_list, board_color, empty_fields):
-    """
-    takes information about field colour and content of field to evalute the color of a piece
-    """
-    piece_colors = [0] * 64
-
-    for i in range(len(square_list)):
-        img = square_list[i]  # grab img
-        field_color = board_color[i]  # grab color of field
-
-        if not empty_fields[i]:
-
-            blur = cv2.GaussianBlur(img, (5, 5), 0)
-            gray_square = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
-            _, img_binary = cv2.threshold(gray_square, 130, 255, cv2.THRESH_BINARY)
-            rows, cols = img_binary.shape
-            img_binary_inverted = cv2.bitwise_not(img_binary)
-
-            # remove noise
-            morph_kernel = np.ones((15, 15), np.uint8)
-            out = cv2.morphologyEx(img_binary_inverted, cv2.MORPH_CLOSE, morph_kernel)
-            # cv2.imshow('image',img)
-            # cv2.waitKey(0)
-
-            n_white_pix = cv2.countNonZero(out)
-            n_black_pix = rows * cols - n_white_pix
-            thresh = (rows * cols) / 3  # threshhold 1/3 of img has to be of the other color (maybe pay around)
-
-            if field_color == 1:  # field is white
-                if n_white_pix >= thresh:  # threshold einsetzen wie großer teil des bildes darf besetzt sein
-                    piece_colors[i] = 'b'
-                else:
-                    piece_colors[i] = 'w'
-
-            if field_color == 0:  # field is black
-
-                if n_black_pix > thresh:  # threshold einsetzen wie großer teil des bildes darf besetzt sein 1/3
-                    piece_colors[i] = 'w'
-                else:
-                    piece_colors[i] = 'b'
-    return piece_colors
-
+"""
+takes information about field colour and content of field to evaluate the color of a piece
+"""
 
 # ## Extract FEN
 
@@ -151,14 +41,13 @@ def get_piece_colors(square_list, board_color, empty_fields):
 # * lazy fen calculation
 #
 
-# In[60]:
+"""
+Gets array with FEN content
+combines it to valid FEN string
+"""
 
 
 def get_fen_from_array(fen_array):
-    """
-    Gets array with FEN content
-    combines it to valid FEN string
-    """
     fen = ""
     empty = 0
     for i in range(len(fen_array)):
@@ -180,11 +69,13 @@ def get_fen_from_array(fen_array):
     return fen
 
 
+"""
+lazy fen calculation takes always the most probable result
+useable to test accuracy of model
+"""
+
+
 def most_probable_array(predictions):
-    """
-    lazy fen calculation takes always the most probable result
-    useable to test accuracy of model
-    """
     fen_array = []
     for pred in predictions:
         index = np.argmax(pred)  # get highest probable index
@@ -192,10 +83,12 @@ def most_probable_array(predictions):
     return fen_array
 
 
+"""
+splits probability of predicted piece to all other pieces (used to null probabilitys)
+"""
+
+
 def split_probability(predictions, field_index, piece_index):
-    """
-    splits probability of predicted piece to all other pieces (used to null probabilitys)
-    """
     # dont divide 0
     if predictions[field_index][piece_index] > 0:
         add_value = predictions[field_index][piece_index] / 5
@@ -242,6 +135,11 @@ def new_piece_found(count, predictions, index_list, field, piece_index, piece, n
     return predictions
 
 
+"""
+calculates the neighbouring indices
+"""
+
+
 def get_neighbourhood(wk_index):
     left, right = -1, -1
     top, top_left, top_right = -1, -1, -1
@@ -274,8 +172,8 @@ def find_king(predictions, count, index_list):
     updates count dict
     """
     not_found = True
+    white_king, wk_index, black_king, bk_index = 0, 0, 0, 0
     while not_found:
-        white_king, wk_index, black_king, bk_index = 0, 0, 0, 0
         # iterate through predictions find 2 most probable kings
         for i in range(len(predictions)):
             if piece_colors[i] == 'w':
@@ -380,26 +278,26 @@ def get_fen_array(predictions, piece_colors):
     return fen_array
 
 
-
-
-
 if __name__ == '__main__':
     # todo args machen
-    dir_path = '/home/joking/Projects/Chessrecognition/Data/chessboards/squares/1/'  # dog
-    model_path = '/home/joking/PycharmProjects/Chess_Recognition/models/small_model_1.h5'
+    dir_path = '/home/joking/Projects/Chessrecognition/Data/chessboards/squares/1/'
+    model_path = '/home/joking/Projects/Chessrecognition/models/trained_models/best_model.h5'
 
+    # load ima
     tensor_list, square_list = utility.load_square_lists_from_dir(dir_path)
 
-    predictions = model.get_predicitions(tensor_list)
-
-    board_color = find_board_colour(square_list)
-
+    # model = tf.keras.models.load_model(model_path)
+    chess_model = model.load_model("1609865413_small_Model.h5")
+    predictions = model.get_predictions(chess_model, tensor_list)
     empty_fields = collect_emtpy_squares(predictions)
-    piece_colors = get_piece_colors(square_list, board_color, empty_fields)
+
+    board_colors, piece_colors = get_board_colors.get_colors(square_list, empty_fields)
+
     fen_array = get_fen_array(predictions, piece_colors)
     fen = get_fen_from_array(fen_array)
 
     print(fen)
+    utility.display_fen_board(fen, save=False)
 
 """
 # ## Alternative approach to evaluate FEN Position
@@ -417,25 +315,20 @@ if __name__ == '__main__':
 ###################################### How to find FEN
 #
 
-    # todo ensure via multiplier that more that 2 pieces and 1 king/queen cant be on board
-    # todo bishop of same color
+
     # todo Ensure 32 empty fields
     # todo max 16 pieces of color
     # todo pawns + queen <= 9
     # todo pawns + minor piece <= 10
 # 2B5/1p6/4kQk1/2k1Q3/3kN3/6N1/NN4kP/3RQN1R
 #
-# num_pieces <= 32
 #
-# 16 pieces per color
-#
-# exactly 1 king
+
 #
 # pawns + queen <= 9
 #
 # pawns + minor piece <= 10
 #
-# no pawns on first and last row
 # 
 #
 # sliding windows with stockfish https://arxiv.org/pdf/1607.04186.pdf

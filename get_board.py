@@ -3,18 +3,17 @@
 
 ## IMPORTS
 import os
-
-import numpy as np
-from matplotlib import pyplot as plt
-import utility
-import cv2  # For Sobel etc
-
-
-import scipy.spatial as spatial
-import scipy.cluster as clstr
 from collections import defaultdict
-np.set_printoptions(suppress=True)  # Better printing of arrays
-plt.rcParams['image.cmap'] = 'jet'  # Default colormap is jet
+
+import cv2  # For Sobel etc
+import numpy as np
+import scipy.cluster as clstr
+import scipy.spatial as spatial
+from matplotlib import pyplot as plt
+
+import get_board_colors
+import utility
+
 
 def auto_canny(image, sigma=0.33):
     """
@@ -268,35 +267,6 @@ def get_squares(img, show=False):
     return squares, board_img
 
 
-# 32
-
-
-# 32
-
-def find_field_colour(img, show=True):
-    gray_square = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    blur = cv2.GaussianBlur(gray_square, (5, 5), 0)
-    _, img_binary = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
-    # remove noise
-    morph_kernel = np.ones((15, 15), np.uint8)
-    img_binary = cv2.morphologyEx(img_binary, cv2.MORPH_CLOSE, morph_kernel)
-
-    rows, cols = img_binary.shape
-
-    if show == True:
-        fig = plt.figure(figsize=(3, 3))
-        plt.imshow(img)
-        plt.show()
-
-    n_white_pix = cv2.countNonZero(img_binary)
-    n_black_pix = rows * cols - n_white_pix
-
-    if n_white_pix > n_black_pix:
-        return 1
-    return 0
-
-
 def remove_wrong_outline(squares, counter):
     """ removes an outline that is wrong. works when eG 72 squares are found and all on extra col/row on the outside
 
@@ -321,22 +291,22 @@ def remove_wrong_outline(squares, counter):
     for i in range(step):
         # erste spalte
         img = squares[(i)]
-        first_col.append(find_field_colour(img, False))
+        first_col.append(get_board_colors.find_field_colour(img, False))
         f_c_index.append(i)
 
         # erste zeile
         img = squares[(i) * step]
-        first_row.append(find_field_colour(img, False))
+        first_row.append(get_board_colors.find_field_colour(img, False))
         f_r_index.append(i * step)
 
         # letzte spalte
         img = squares[(-i - 1)]
-        last_col.append(find_field_colour(img, False))
+        last_col.append(get_board_colors.find_field_colour(img, False))
         l_c_index.append((-i - 1))
 
         # letzte zeile
         img = squares[(i + 1) * step - 1]
-        last_row.append(find_field_colour(img, False))
+        last_row.append(get_board_colors.find_field_colour(img, False))
         l_r_index.append((i + 1) * step - 1)
 
         # thresh ab wann cut??
@@ -423,22 +393,24 @@ def combine_squares_board_image(squares):
 def fill_dir_with_squares(board_path, squares):
     board_dir_path = board_path.replace(".jpg", "")
     board_number_string = board_dir_path.replace("Data/chessboards/", "")
-    parent_dir = board_dir_path.replace(board_number_string, "") +"squares/"
+    parent_dir = board_dir_path.replace(board_number_string, "") + "squares/"
 
     try:
+
         parent_dir = '../Data/chessboards/squares'
         directory = str(i)
         path = os.path.join(parent_dir, directory)
         os.mkdir(path)
         print("Directory '%s' created" % directory)
     except:
-        print("Directory '%s' already exists" % directory)
+        print("Directory  already exists")
     k = 0
-    for square in squares:
-        cv2.imwrite(path + "/" + str(k) + '.jpg', square)  # '../Data/chessboards/squares/' + str(i)
-        k += 1
-
-
+    try:
+        for square in squares:
+            cv2.imwrite(path + "/" + str(k) + '.jpg', square)  # '../Data/chessboards/squares/' + str(i)
+            k += 1
+    except:
+        print("Something Wrong")
 
 if __name__ == '__main__':
     for i in range(2, 3):

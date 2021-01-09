@@ -37,13 +37,14 @@ def print_points(plist, img):
         cx, cy = point
         cx = int(cx)
         cy = int(cy)
-        cv2.circle(circled,(cx,cy), 20, (255,0,0) , -1) # red (255,0,0), black 1
-    fig = plt.figure(figsize=(10,10))
+        cv2.circle(circled, (cx, cy), 20, (255, 0, 0), -1)  # red (255,0,0), black 1
+    fig = plt.figure(figsize=(10, 10))
     plt.imshow(circled)
+
 
 def chunks(l, n):
     n = max(1, n)
-    return (l[i:i+n] for i in range(0, len(l), n))
+    return (l[i:i + n] for i in range(0, len(l), n))
 
 
 def save_history(history):
@@ -52,6 +53,7 @@ def save_history(history):
     history_path = '/history/{}_history.csv'.format(int(t))
     df.to_csv(history_path)
     print("History saved to " + history_path)
+
 
 #########################################################  Plotting ###################################################
 
@@ -95,7 +97,7 @@ def plot_prob(pred, class_names, img=None, label=""):
     ax2.barh(np.arange(len(class_names)), pred, align='center', alpha=0.6, )
     ax2.set_aspect(0.1)
     ax2.set_yticks(np.arange(len(class_names)))
-    ax2.set_yticklabels(class_names, size='small');
+    ax2.set_yticklabels(class_names, size='small')
     ax2.set_title('Class Probability')
     ax2.set_xlim(0, 1.1)
     plt.tight_layout()
@@ -134,15 +136,10 @@ def load_image_to_tensor(img_path, show=False):
     return img_tensor
 
 
-
-
-
 def load_square(img_path, show=False):
     img = cv2.imread(img_path)
     img = cv2.resize(img, (150, 150))
     return img
-
-
 
 
 def load_square_lists_from_dir(dir_path):
@@ -156,4 +153,3 @@ def load_square_lists_from_dir(dir_path):
         square_list.append(load_square(addr))
 
     return tensor_list, square_list
-

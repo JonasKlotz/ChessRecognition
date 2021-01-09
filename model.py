@@ -1,33 +1,23 @@
 #!/usr/bin/env python
 # coding: utf-8
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.preprocessing import image
-from collections import defaultdict
-
-from matplotlib.image import imread
-import matplotlib.pyplot as plt
-from copy import deepcopy
-from natsort import natsorted, ns
-import tensorflow as tf
-import numpy as np
-
-import glob
 import time
-import sys
-import cv2
-import os
 
 import keras
+import numpy as np
+import tensorflow as tf
 from keras import layers
 from keras import models
-from keras.optimizers import Adam
 from keras.applications.inception_resnet_v2 import InceptionResNetV2
+from keras.optimizers import Adam
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 import utility
 
-train_path = "/home/joking/Projects/Chessrecognition/Data/smaller_model/train/"
-test_path = "/home/joking/Projects/Chessrecognition/Data/smaller_model/test/"
-model_path = './model/1600679265_small_Model.h5'
+train_path = "/home/joking/Projects/Chessrecognition/data/smaller_model/train/"
+test_path = "/home/joking/Projects/Chessrecognition/data/smaller_model/test/"
+
+model_path = '/home/joking/Projects/Chessrecognition/models/trained_models/best_model.h5'
+empty_model_path = '/home/joking/PycharmProjects/Chess_Recognition/models/empty_small_model.h5'
 
 labels = ["bishop", "empty", "king", "knight", "pawn", "queen", "rook"]
 pieces = ["b", "empty", "k", "n", "p", "q", "r"]
@@ -71,6 +61,8 @@ def load_training_dataset(training_dir, test_dir):
 
 
 def create_model(output_size=7):
+    IMG_SHAPE = 150
+
     base_model = InceptionResNetV2(include_top=False, weights='imagenet', input_shape=(IMG_SHAPE, IMG_SHAPE, 3))
     x = base_model.output
     x = layers.GlobalAveragePooling2D()(x)
@@ -91,16 +83,13 @@ def create_model(output_size=7):
     return model
 
 
-
-
-
 # ## Train Model
 def train_model(model, train_dataset, validation_dataset, epochs=1):
     steps_p_epoch = 10000 / 32  # num_samples // batch_size,
     early_stopping = keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 
     # Save the Model with the lowest validation loss
-    save_best = keras.callbacks.ModelCheckpoint('./best_model.h5',
+    save_best = keras.callbacks.ModelCheckpoint('models/best_model.h5',
                                                 monitor='val_loss',
                                                 save_best_only=True)
 
@@ -112,21 +101,34 @@ def train_model(model, train_dataset, validation_dataset, epochs=1):
 
     t = time.time()
 
-    saved_keras_model_filepath = './model/{}_small_Model.h5'.format(int(t))
+    saved_keras_model_filepath = '{}_small_Model.h5'.format(int(t))
 
     model.save(saved_keras_model_filepath)
+    print("Model saved to: " + saved_keras_model_filepath)
     return model, history
-    
+
+
 # ## Load Model
 def load_model(file_path):
     return tf.keras.models.load_model(file_path)
 
 
+"""
+load the already compiled model to retrain it
+"""
 
-def get_predictions(tensor_list, show=False):
-    
+
+def load_compiled_model(path):
+    model = tf.keras.models.load_model(path, compile=False)
+    adam = Adam(lr=0.0001)
+
+    model.compile(adam, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    return model
+
+
+def get_predictions(model, tensor_list, show=False):
     predictions = []
-    model = load_model(model_path)
+    # model = load_model(model_path)
     for img in tensor_list:
         pred = np.squeeze(model.predict(img))
         if show:
@@ -135,9 +137,17 @@ def get_predictions(tensor_list, show=False):
 
     return predictions
 
+
 if __name__ == '__main__':
-    #TODO setup args, define which operations done
-    pass
+    # TODO setup args, define which operations done
+    train_dataset, validation_dataset = load_training_dataset(train_path, test_path)
 
+    # model = create_model()
+    model = load_compiled_model(empty_model_path)
+    model, history = train_model(model, train_dataset, validation_dataset, epochs=1)
 
+    utility.plot_history(history)
 
+    # wenn nicht gehtcluster gucken
+
+    print("Success")
