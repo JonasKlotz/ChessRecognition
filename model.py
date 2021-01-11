@@ -24,6 +24,10 @@ pieces = ["b", "empty", "k", "n", "p", "q", "r"]
 
 fen_real = "r1b5/pp3p1p/4kQp1/2pNN3/2PnP3/6P1/PP4qP/3RK2R"  # r1b5/pp3p1p/4kQp1/2pNN3/2PnP3/6P1/PP4qP/3RK2R w - - 0 1
 
+import logging
+
+logging.getLogger("tensorflow").setLevel(logging.ERROR)
+
 
 # ## Creating ImageDataGenerators
 
@@ -135,7 +139,7 @@ def get_predictions(model, tensor_list, show=False):
             utility.plot_prob(pred, pieces, img)
         predictions.append(pred)
 
-    return predictions
+    return np.asarray(predictions)
 
 
 if __name__ == '__main__':
@@ -144,7 +148,7 @@ if __name__ == '__main__':
 
     # model = create_model()
     model = load_compiled_model(empty_model_path)
-    model, history = train_model(model, train_dataset, validation_dataset, epochs=1)
+    model, history = train_model(model, train_dataset, validation_dataset, epochs=2)
 
     utility.plot_history(history)
 

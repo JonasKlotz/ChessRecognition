@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-from collections import defaultdict
-
-import numpy as np
 
 import get_board_colors
 import model
@@ -21,33 +18,35 @@ should work out at beginning as emtpy fields can be recognized quite good
 
 
 def collect_emtpy_squares(predictions):
-    # TODO sort and take first 32 field safe, continue with fields that have highest probability
+    empty = np.argsort(-1 * predictions[:, 1])  # sort empty fields after predictions
     empty_fields = [False] * 64
-    for field_index in range(len(predictions)):
-        if np.argmax(predictions[field_index]) == 1:  # if field has highest prob to be empty
+    empty_count = 0
+    for i in range(64):
+        field_index = empty[i]
+        if np.argmax(predictions[field_index]) == 1 or empty_count < 32:  # if field has highest prob to be empty
             empty_fields[field_index] = True
-
+            empty_count += 1
     return empty_fields
 
 
-"""
-takes information about field colour and content of field to evaluate the color of a piece
-"""
+# !/usr/bin/env python
+# coding: utf-8
 
-# ## Extract FEN
+# In[335]:
 
-# ## Helper functions
-# * Fen to Array
-# * lazy fen calculation
-#
 
-"""
-Gets array with FEN content
-combines it to valid FEN string
-"""
+from collections import defaultdict
+
+import numpy as np
+
+fen_gen = ["b", "1", "k", "n", "p", "q", "r", ]
 
 
 def get_fen_from_array(fen_array):
+    """
+    Gets array with FEN content
+    combines it to valid FEN string
+    """
     fen = ""
     empty = 0
     for i in range(len(fen_array)):
@@ -67,72 +66,6 @@ def get_fen_from_array(fen_array):
     fen = fen + " w - - 0 0"
     print(fen)
     return fen
-
-
-"""
-lazy fen calculation takes always the most probable result
-useable to test accuracy of model
-"""
-
-
-def most_probable_array(predictions):
-    fen_array = []
-    for pred in predictions:
-        index = np.argmax(pred)  # get highest probable index
-        fen_array.append(fen_gen_small[index])
-    return fen_array
-
-
-"""
-splits probability of predicted piece to all other pieces (used to null probabilitys)
-"""
-
-
-def split_probability(predictions, field_index, piece_index):
-    # dont divide 0
-    if predictions[field_index][piece_index] > 0:
-        add_value = predictions[field_index][piece_index] / 5
-    else:
-        add_value = 0
-
-    # Todo: count non zero value for more eff
-    for i in range(len(predictions[field_index])):  # for every possible piece
-        if i == piece_index:
-            predictions[field_index][piece_index] = 0  # own probability set to zero
-        elif i == 2 or i == 1:
-            continue  # index 2 is King, only one is possible 2 is empty- empty fields stay empty
-        else:
-            predictions[field_index][i] += add_value  # add splitted prob
-
-    return predictions
-
-
-def new_piece_found(count, predictions, index_list, field, piece_index, piece, number=2):
-    """ used if piece found
-    checks if there is already a maximum amount of this piece on the board
-    does not consider boundarys
-
-    """
-    if len(count[piece]) > number - 1:  # already a queen #TODO Momentan nicht möglich das mehr als 1 queen
-        for k in count[piece]:
-
-            if predictions[field][piece_index] > predictions[k][piece_index]:
-                count[piece].remove(k)
-                index_list.append(k)  # remove old piece from count and put into index list
-                # half original distribution, rest equally distributed for all other pieces
-                predictions = split_probability(predictions, k, piece_index)
-                count[piece].append(field)
-                break
-
-        # no new piece found still append
-        if field not in count[piece]:
-            index_list.append(field)
-            predictions = split_probability(predictions, field, piece_index)
-
-
-    else:
-        count[piece].append(field)
-    return predictions
 
 
 """
@@ -164,188 +97,221 @@ def get_neighbourhood(wk_index):
     return [top, top_left, top_right, bot, bot_left, bot_right, left, right]
 
 
-def find_king(predictions, count, index_list):
-    """
-    todo vlt king and queen together
-    @binds: 2 kings only, not possible to be faced close to each other
-    idea take most probable king for each color
-    updates count dict
-    """
-    not_found = True
-    white_king, wk_index, black_king, bk_index = 0, 0, 0, 0
-    while not_found:
-        # iterate through predictions find 2 most probable kings
-        for i in range(len(predictions)):
-            if piece_colors[i] == 'w':
-                if predictions[i][2] > white_king:
-                    white_king = predictions[i][2]
-                    wk_index = i
+# index arrays - sort elements find highest probability of piece
+def create_index_array(predictions):
+    bishop = np.argsort(predictions[:, 0])
+    empty = np.argsort(predictions[:, 1])
+    king = np.argsort(-1 * predictions[:, 2])  # indices of most probable kings reverse
+    knight = np.argsort(predictions[:, 3])
+    pawn = np.argsort(predictions[:, 4])
+    queen = np.argsort(predictions[:, 5])
+    rook = np.argsort(predictions[:, 6])
 
-            elif piece_colors[i] == 'b':
-                if predictions[i][2] > black_king:
-                    black_king = predictions[i][2]
-                    bk_index = i
+    index_array = defaultdict()
+    index_array["b"] = list(bishop)
+    index_array["1"] = list(empty)
+    index_array["k"] = list(king)
+    index_array["n"] = list(knight)
+    index_array["p"] = list(pawn)
+    index_array["q"] = list(queen)
+    index_array["r"] = list(rook)
+    return index_array
 
-        # calculate neighbourhood only whiteking
-        neighbourhood = get_neighbourhood(wk_index)
 
-        if bk_index in neighbourhood:  # kings are close to each other
-            if predictions[wk_index][2] > predictions[bk_index][2]:
-                predictions = split_probability(predictions, bk_index, 2)
+# remove value from array in dictionary - used when piece is not found
+def remove_from_single_index_array(dictionary, piece_name, index):
+    dictionary[piece_name].remove(index)
+    return dictionary
 
-            else:
-                predictions = split_probability(predictions, wk_index, 2)
 
+# remove value from all arrays in dictionary - used when piece is found
+def remove_from_all_index_array(dictionary, index):
+    for piece_name in fen_gen:
+        try:
+            dictionary[piece_name].remove(index)
+        except:
+            continue
+
+    return dictionary
+
+
+"""
+top index contains index for most probable next piece eG ["b"][-1] is the most probable next bishop
+"""
+
+
+def get_tops(index_array, predictions):
+    top_index = []  # contains index of most probable piece
+    top_predictions = []
+    fen_gen = ["b", "1", "n", "p", "q", "r"]  # no king as they are already placed
+    iter_list = [0, 1, 3, 4, 5, 6]  # is used to skip kings
+
+    for i in range(6):
+        piece = fen_gen[i]
+        index = iter_list[i]
+
+        if index_array[piece]:
+            elem = index_array[piece][-1]  # take highest elem from sorted list
+            top_index.append(elem)
+            top_predictions.append(predictions[top_index[i], index])
         else:
-            break
+            top_index.append(-1)
+            top_predictions.append(-1)
 
-    count["K"].append(wk_index)
-    index_list.remove(wk_index)
+    return top_index, top_predictions
 
-    count["k"].append(bk_index)  # 60
-    index_list.remove(bk_index)
-    print(type(predictions))
+
+"""
+finds kings in predictions 
+@returns updated board
+"""
+
+
+def find_kings_2(index_array, piece_colors, board):
+    king = index_array["k"]  # indices of most probable kings reverse
+    wk_index, bk_index = -1, -1,
+
+    for i in king:
+        if wk_index >= 0 and bk_index >= 0: break  # both kings found
+
+        if piece_colors[i] == 'w' and wk_index < 0:
+            if bk_index == 1 and bk_index in get_neighbourhood(i):
+                continue
+            wk_index = i
+
+        if piece_colors[i] == 'b' and bk_index < 0:
+            if bk_index == 1 and wk_index in get_neighbourhood(i):
+                continue
+            bk_index = i
+    board[wk_index] = "K"
+    board[bk_index] = "k"
+    index_array = remove_from_all_index_array(index_array, wk_index)
+    index_array = remove_from_all_index_array(index_array, bk_index)
+
+    return board, index_array
+
+
+# In[340]:
+
+
+"""
+pawns can't be on the back rank
+"""
+
+
+def clear_pawns_back_rank(predictions):
+    for i in range(8):
+        predictions[i][4] = 0
+    for i in range(56, 64):
+        predictions[i][4] = 0
     return predictions
 
 
-# first find king for each side to ensure that there is one
-def get_fen_array(predictions, piece_colors):
-    fen_gen = ["b", "1", "k", "n", "p", "q", "r"]
+"""
+uses a hashmap to check if max capacity on board is reached, checks for bishop color
+@:returns true if new piece was found
+"""
 
-    predictions = np.asarray(predictions)
-    count = defaultdict(list)  # count dict - how many pieces of each class are on board
-    index_list = list(np.arange(64))  # field indizes
 
-    # find most probable king
-    predictions = find_king(predictions, count, index_list)
+def check_new_piece_found(piece, field_color, used_pieces):
+    max_pieces = {"r": 2, "R": 2, "n": 2, "N": 2, "p": 8, "P": 8, "q": 1, "Q": 1, "b_0": 1, "b_1": 1, "B_0": 1,
+                  "B_1": 1}
+    if piece == "1":  # Empty field found - all empty fields are accepted
+        return True
 
-    # no pawns on back rank
-    for field in range(8):
-        predictions = split_probability(predictions, field, 4)
-    for field in range(56, 64):
-        predictions = split_probability(predictions, field, 4)
+    if piece == "b" or piece == "B":  # bishop found
+        piece += "_" + str(field_color)  # 1 black and 1 white bishop
 
-    i = 0
-    while index_list:
-        # i += 1
-        field_index = index_list.pop(0)
+    if used_pieces[piece] > max_pieces[piece] - 1:
+        return False
+    used_pieces[piece] += 1  # one more piece on board
+    return True
 
-        pred = predictions[field_index]
-        piece_index = np.argmax(pred)  # get highest probable index in piece array
-        piece = fen_gen[piece_index]
 
-        # f piece is white, piece num gets changed to uppercase
+def remove_empty_fields(index_array, empty_fields, board, remaining_fields):
+    for i in range(64):
+        if empty_fields[i]:
+            board[i] = "1"
+            index_array = remove_from_all_index_array(index_array, i)
+            remaining_fields -= 1
+
+    return board, index_array, remaining_fields
+
+
+def get_fen_array(predictions, piece_colors, field_colors, empty_fields):
+    ########## Setup ###########
+    fen_gen = ["b", "1", "n", "p", "q", "r"]  # no king as they are already placed
+    # index arrays - sort elements find highest probability of piece
+    predictions = clear_pawns_back_rank(predictions)
+    index_array = create_index_array(predictions)
+    board = [1] * 64
+    used_pieces = defaultdict(int)
+    board, index_array = find_kings_2(index_array, piece_colors, board)
+    remaining_fields = 62  # kings are already in place
+    # remove at least 32 empty fields as empty fields are easy to predict
+    board, index_array, remaining_fields = remove_empty_fields(index_array, empty_fields, board, remaining_fields)
+
+    while remaining_fields > 0:
+        # get the board position of the most probable pieces
+        top_index, top_predictions = get_tops(index_array, predictions)
+
+        # which is the most likely piece
+        piece_index = np.argmax(top_predictions)  # which piece is it?
+        piece_name = fen_gen[piece_index]  # namestring in chess notation
+
+        field_index = top_index[piece_index]  # where on the board is the piece
+        field_color = field_colors[field_index]  # what color is the field
+
+        # check color
         if piece_colors[field_index] == 'w':
-            piece = piece.upper()
-        # print("most probable piece= ", piece)
+            piece = piece_name.upper()
+        else:
+            piece = piece_name
 
-        if piece == "k" or piece == "K":  # king found
-            predictions = new_piece_found(count, predictions, index_list, field_index, piece_index, piece, number=1)
+        # if on board
+        if check_new_piece_found(piece, field_color, used_pieces):
 
-        elif piece == "n" or piece == "N":  # knight found
-            predictions = new_piece_found(count, predictions, index_list, field_index, piece_index, piece, number=2)
+            # add piece to board
+            board[field_index] = piece
+            # remove index from index array all arrays
+            index_array = remove_from_all_index_array(index_array, field_index)
+            remaining_fields -= 1
+        else:
+            index_array = remove_from_single_index_array(index_array, piece_name, field_index)
 
-        elif piece == "q" or piece == "Q":  # queen found
-            predictions = new_piece_found(count, predictions, index_list, field_index, piece_index, piece, number=1)
+    return board
 
-        elif piece == "b" or piece == "B":  # bishop found
-            predictions = new_piece_found(count, predictions, index_list, field_index, piece_index, piece, number=2)
 
-        elif piece == "r" or piece == "R":  # rook found
-            predictions = new_piece_found(count, predictions, index_list, field_index, piece_index, piece, number=2)
+def get_fen_from_predictions(predictions, square_list):
+    empty_fields = collect_emtpy_squares(predictions)
 
-        elif piece == "p" or piece == "P":  # pawn found
-            predictions = new_piece_found(count, predictions, index_list, field_index, piece_index, piece, number=8)
-        else:  # empty
-            count[piece].append(field_index)
+    field_colors, piece_colors = get_board_colors.get_colors(square_list, empty_fields)
 
-    print("Final Count")
-    print(dict(count))
-    print()
+    fen_array = get_fen_array(predictions, piece_colors, field_colors, empty_fields)
+    fen = get_fen_from_array(fen_array)
 
-    fen_array = ["1"] * 64
-
-    for key, values in count.items():
-        for value in values:
-            try:
-                fen_array[value] = key
-                # print("Field: ", value, " = ", key)
-            except:
-                print(key, value)
-
-    print(len(fen_array))
-    print(fen_array)
-    return fen_array
+    utility.display_fen_board(fen, save=False)
+    return fen
 
 
 if __name__ == '__main__':
-    # todo args machen
-    dir_path = '/home/joking/Projects/Chessrecognition/Data/chessboards/squares/1/'
+    dir_path = '/home/joking/Projects/Chessrecognition/data/chessboards/squares/1/'
     model_path = '/home/joking/Projects/Chessrecognition/models/trained_models/best_model.h5'
 
     # load ima
     tensor_list, square_list = utility.load_square_lists_from_dir(dir_path)
 
     # model = tf.keras.models.load_model(model_path)
-    chess_model = model.load_model("1609865413_small_Model.h5")
+    chess_model = model.load_model(model_path)
     predictions = model.get_predictions(chess_model, tensor_list)
-    empty_fields = collect_emtpy_squares(predictions)
 
+    empty_fields = collect_emtpy_squares(predictions)
     board_colors, piece_colors = get_board_colors.get_colors(square_list, empty_fields)
 
-    fen_array = get_fen_array(predictions, piece_colors)
+    fen_array = get_fen_array(predictions, piece_colors, board_colors)
     fen = get_fen_from_array(fen_array)
 
-    print(fen)
     utility.display_fen_board(fen, save=False)
-
-"""
-# ## Alternative approach to evaluate FEN Position
-# * Group the figures into their color
-# * Group the figures into their class:
-# * First find Kings take most probable king for both sides
-# * in this step modifications of probability can be used
-# * take at least 32 empty fields and all with very high probability of beeing empty ( can be sorted beforehand) empty fields can be recognized quite easily
-# * remove pawns from back rank distribute probability
-# * Group all pieces regarding the highest probability of beeing that piece and take top tier candidates (number depends on class(minor and rook = 2, queen = 1)
-# * - eG for white bishop take the 2 most likely bishops - apply constraints one white one black bishop - even tho possible it is very uncommon to have two bishops of same color, as when a pawn is promoted there aren't much piece on board and queen is always prefered.
-#
-# * Then group other pieces according to that scheme
-
-###################################### How to find FEN
-#
-
-
-    # todo Ensure 32 empty fields
-    # todo max 16 pieces of color
-    # todo pawns + queen <= 9
-    # todo pawns + minor piece <= 10
-# 2B5/1p6/4kQk1/2k1Q3/3kN3/6N1/NN4kP/3RQN1R
-#
-#
-
-#
-# pawns + queen <= 9
-#
-# pawns + minor piece <= 10
-#
-# 
-#
-# sliding windows with stockfish https://arxiv.org/pdf/1607.04186.pdf
-#
-# Clustering  into  groups:
-#     After  clustering  similar  figuresinto groups,
-#     we can reject certain trivial cases based on thecardinality of clusters.
-#     For example, having two groups ofsimilar figures with cardinalities of{5,1}
-#     and candidatesof{bishop,pawn},  it  can  be  deduced  that  there  are
-#     fivepawns and one bishop.
-# 
-#
-#      https://chess.stackexchange.com/questions/1482/how-to-know-when-a-fen-position-is-legal?rq=1
-#     approach linear programming
-#
-
-"""
 
 
 def load_single_image():

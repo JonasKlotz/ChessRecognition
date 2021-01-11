@@ -92,7 +92,7 @@ def get_piece_colors(square_list, board_color, empty_fields):
 
             n_white_pix = cv2.countNonZero(out)
             n_black_pix = rows * cols - n_white_pix
-            thresh = (rows * cols) / 3  # threshhold 1/3 of img has to be of the other color (maybe pay around)
+            thresh = (rows * cols) / 3.5  # threshhold 1/3 of img has to be of the other color (maybe pay around)
 
             if field_color == 1:  # field is white
                 if n_white_pix >= thresh:  # threshold einsetzen wie großer teil des bildes darf besetzt sein
@@ -106,6 +106,7 @@ def get_piece_colors(square_list, board_color, empty_fields):
                     piece_colors[i] = 'w'
                 else:
                     piece_colors[i] = 'b'
+
     return piece_colors
 
 

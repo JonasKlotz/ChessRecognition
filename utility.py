@@ -1,5 +1,6 @@
 import glob
 import io
+import os
 import time
 
 import chess
@@ -79,6 +80,8 @@ def plot_history(history):
     plt.plot(epochs_range, validation_loss, label='Validation Loss')
     plt.legend(loc='upper right')
     plt.title('Training')
+    plt.savefig("history.png")
+
     plt.show()
 
 
@@ -117,9 +120,29 @@ def plotImages(images_arr):
 #
 
 # In[49]:
+def load_image_to_tensor(img):
+    img_tensor = image.img_to_array(img)  # (height, width, channels)
+    img_tensor = np.expand_dims(img_tensor,
+                                axis=0)  # (1, height, width, channels), add a dimension because the model expects this shape: (batch_size, height, width, channels)
+    img_tensor /= 255.  # imshow expects values in the range [0, 1]
+    return img_tensor
 
 
-def load_image_to_tensor(img_path, show=False):
+"""
+@input: a list of images of squares
+@returns: tensor list of the given squares
+"""
+
+
+def load_tensor_list_from_squares(square_list):
+    tensor_list = []
+    for square in square_list:
+        tensor_list.append(load_image_to_tensor(square))
+
+    return tensor_list
+
+
+def load_image_path_to_tensor(img_path, show=False):
     """load image in tensorformat
     """
     img = image.load_img(img_path, target_size=(150, 150))
@@ -142,14 +165,76 @@ def load_square(img_path, show=False):
     return img
 
 
+"""
+loads squares from a directory
+@:arg path of dir
+returns images in tensors and img (150, 150)
+"""
 def load_square_lists_from_dir(dir_path):
     addrs = glob.glob(dir_path + "/*.jpg")
     addrs = natsorted(addrs)
 
     tensor_list, square_list = [], []
     for addr in addrs:
-        img = load_image_to_tensor(addr)
+        img = load_image_path_to_tensor(addr)
         tensor_list.append((img))
         square_list.append(load_square(addr))
 
     return tensor_list, square_list
+
+
+def combine_squares_board_image(squares):
+    """
+    takes array of squares and recombines them to board
+    for testing purposes
+    needs 64 squares
+    """
+    n_squares = len(squares)
+    print("Number of squares: ", n_squares)
+    assert n_squares == 64
+
+    first_col = squares[0]
+    for k in range(1, 8):  # each col
+        first_col = cv2.vconcat([first_col, squares[k]])
+
+    for i in range(1, 8):
+        temp_col = squares[i * 8]  # start der spalte
+        for k in range(1, 8):
+            temp_col = cv2.vconcat([temp_col, squares[(i * 8) + k]])
+
+        first_col = cv2.hconcat([first_col, temp_col])
+    fig = plt.figure(figsize=(10, 10))
+    plt.imshow(first_col)
+    plt.show()
+
+    return first_col
+
+
+# combine_squares_board_image(test_squares)
+"""
+#todo:  update that it uses also save path as input
+BUGGYYYY
+"""
+
+
+def fill_dir_with_squares(board_path, squares):
+    board_dir_path = board_path.replace(".jpg", "")
+    board_number_string = board_dir_path.replace("data/chessboards/", "")
+    parent_dir = board_dir_path.replace(board_number_string, "") + "squares/"
+    parent_dir = '/home/joking/PycharmProjects/Chess_Recognition/data/chessboards/squares'
+    path = os.path.join(parent_dir, board_number_string)
+
+    try:
+        os.mkdir(path)
+        print("Directory '%s' created" % path)
+    except:
+        print("Directory  already exists")
+    k = 0
+    try:
+        for square in squares:
+            cv2.imwrite(path + "/" + str(k) + '.jpg', square)  # './data/chessboards/squares/' + str(i)
+            k += 1
+    except:
+        print("Couldnt save the image")
+
+    return path

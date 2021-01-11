@@ -2,7 +2,6 @@
 # coding: utf-8
 
 ## IMPORTS
-import os
 from collections import defaultdict
 
 import cv2  # For Sobel etc
@@ -219,7 +218,7 @@ def get_board(path, show=False):
 
 
 def get_squares(img, show=False):
-    points = get_points(cropped, show=False)  #
+    points = get_points(img, show=False)  #
     v_points = sorted(points)  # größer heißt höher im bild, key=lambda x: x[0]
     utility.print_points(v_points, img)
 
@@ -238,7 +237,7 @@ def get_squares(img, show=False):
         if abs(dis - standard_dis) > thresh:
             break
 
-    print("counter soll 9 sein: ", counter)
+    # print("counter soll 9 sein: ", counter)
 
     # split in line array
     lists = utility.chunks(v_points, counter)
@@ -252,7 +251,7 @@ def get_squares(img, show=False):
     for i in range(len(lines) - 1):  # für jede line außer die letzte
         for k in range(len(lines[i]) - 1):  # für jeden punkt außer den letzten
             square_points = [lines[i][k], lines[i][k + 1], lines[i + 1][k + 1], lines[i + 1][k]]
-            sq = four_point_transform(cropped, square_points, square_length=200)  # was ist input für ki 150²
+            sq = four_point_transform(img, square_points, square_length=150)  # was ist input für ki 150²
             squares.append(sq)
             if show:
                 # print_points(square_points, img)
@@ -263,8 +262,33 @@ def get_squares(img, show=False):
 
     if len(squares) == 72:  # > 64
         squares = remove_wrong_outline(squares, counter)
-        board_img = combine_squares_board_image(squares)
+        board_img = utility.combine_squares_board_image(squares)
+
+    squares = resize_squares(squares)
+    squares = rearrange_squares(squares)
+
     return squares, board_img
+
+
+"""
+@:returns resized square list
+"""
+
+
+def resize_squares(square_list, d=150):
+    resized_list = []
+    for square in square_list:
+        resized_list.append(cv2.resize(square, (d, d)))
+    return resized_list
+
+
+def rearrange_squares(squares):
+    new_squares = [np.zeros(8)] * 64
+    for k in range(8):
+        for i in range(8):
+            old_square = squares[(i * 8) + k]
+            new_squares[i + (8 * k)] = old_square
+    return new_squares
 
 
 def remove_wrong_outline(squares, counter):
@@ -362,61 +386,12 @@ def remove_wrong_outline(squares, counter):
     return squares
 
 
-def combine_squares_board_image(squares):
-    """
-    takes array of squares and recombines them to board
-    for testing purposes
-    needs 64 squares
-    """
-    n_squares = len(squares)
-    print("Number of squares: ", n_squares)
-    assert n_squares == 64
-
-    first_col = squares[0]
-    for k in range(1, 8):  # each col
-        first_col = cv2.vconcat([first_col, squares[k]])
-
-    for i in range(1, 8):
-        temp_col = squares[i * 8]  # start der spalte
-        for k in range(1, 8):
-            temp_col = cv2.vconcat([temp_col, squares[(i * 8) + k]])
-
-        first_col = cv2.hconcat([first_col, temp_col])
-    fig = plt.figure(figsize=(10, 10))
-    plt.imshow(first_col)
-    plt.show()
-
-    return first_col
-
-
-# combine_squares_board_image(test_squares)
-def fill_dir_with_squares(board_path, squares):
-    board_dir_path = board_path.replace(".jpg", "")
-    board_number_string = board_dir_path.replace("Data/chessboards/", "")
-    parent_dir = board_dir_path.replace(board_number_string, "") + "squares/"
-
-    try:
-
-        parent_dir = '../Data/chessboards/squares'
-        directory = str(i)
-        path = os.path.join(parent_dir, directory)
-        os.mkdir(path)
-        print("Directory '%s' created" % directory)
-    except:
-        print("Directory  already exists")
-    k = 0
-    try:
-        for square in squares:
-            cv2.imwrite(path + "/" + str(k) + '.jpg', square)  # '../Data/chessboards/squares/' + str(i)
-            k += 1
-    except:
-        print("Something Wrong")
-
 if __name__ == '__main__':
-    for i in range(2, 3):
-        path = "Data/chessboards/" + str(i) + ".jpg"
+    for i in range(1):
+        # i = 12
+        path = "data/chessboards/" + str(i) + ".jpg"
         cropped = get_board(path, show=True)
         squares, board_img = get_squares(cropped, show=False)  #
         print("Anzahl gefundene Squares ", len(squares))
 
-        fill_dir_with_squares(path, squares)
+        # utility.fill_dir_with_squares(path, squares)
