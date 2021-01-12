@@ -3,24 +3,24 @@
 import argparse
 import time
 
-import get_board
 import get_fen
+import get_slid
 import model
 # do some stuff
 import utility
 
-model_path = '/home/joking/Projects/Chessrecognition/models/trained_models/best_small_model.h5'
+model_path = '/home/joking/Projects/Chessrecognition/models/trained_models/best_model.h5'
 
 
 # problem der richtige geht nach rechts der falsche geht nach unten
 def process_image(path, save=False):
-    # todo fix direction
     start_time = time.process_time()
 
-    cropped = get_board.get_board(path, show=False)
-    squares, board_img = get_board.get_squares(cropped, show=False)  #
-    print("Anzahl gefundene Squares ", len(squares))
+    # cropped = get_board.get_board(path, show=False)
+    # squares, board_img = get_board.get_squares(cropped, show=False)  #
+    # print("Anzahl gefundene Squares ", len(squares))
 
+    squares, board_img = get_slid.get_board_slid(path)
     if save:
         save_path = utility.fill_dir_with_squares(path, squares)
         print("Saved to '%s'" % save_path)
@@ -37,6 +37,7 @@ def process_image(path, save=False):
 
     elapsed_time = time.process_time() - start_time
     print("Model took ", elapsed_time, "seconds...")
+
 
     start_time = time.process_time()
     fen = get_fen.get_fen_from_predictions(predictions, squares)

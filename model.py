@@ -13,8 +13,8 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 import utility
 
-train_path = "/home/joking/Projects/Chessrecognition/data/smaller_model/train/"
-test_path = "/home/joking/Projects/Chessrecognition/data/smaller_model/test/"
+train_path = "/home/joking/Projects/Chessrecognition/data/7_classes/train/"
+test_path = "/home/joking/Projects/Chessrecognition/data/7_classes/test/"
 
 model_path = '/home/joking/Projects/Chessrecognition/models/trained_models/best_model.h5'
 empty_model_path = '/home/joking/PycharmProjects/Chess_Recognition/models/empty_small_model.h5'
@@ -89,7 +89,7 @@ def create_model(output_size=7):
 
 # ## Train Model
 def train_model(model, train_dataset, validation_dataset, epochs=1):
-    steps_p_epoch = 10000 / 32  # num_samples // batch_size,
+    steps_p_epoch = 50000 / 32  # num_samples // batch_size,
     early_stopping = keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
 
     # Save the Model with the lowest validation loss
@@ -148,10 +148,9 @@ if __name__ == '__main__':
 
     # model = create_model()
     model = load_compiled_model(empty_model_path)
-    model, history = train_model(model, train_dataset, validation_dataset, epochs=2)
+    model, history = train_model(model, train_dataset, validation_dataset, epochs=1)
 
     utility.plot_history(history)
-
-    # wenn nicht gehtcluster gucken
+    # utility.save_history(history)
 
     print("Success")

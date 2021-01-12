@@ -290,6 +290,7 @@ def get_fen_from_predictions(predictions, square_list):
     fen_array = get_fen_array(predictions, piece_colors, field_colors, empty_fields)
     fen = get_fen_from_array(fen_array)
 
+    print(fen)
     utility.display_fen_board(fen, save=False)
     return fen
 
@@ -310,8 +311,8 @@ if __name__ == '__main__':
 
     fen_array = get_fen_array(predictions, piece_colors, board_colors)
     fen = get_fen_from_array(fen_array)
-
-    utility.display_fen_board(fen, save=False)
+    print(fen)
+    # utility.display_fen_board(fen, save=False)
 
 
 def load_single_image():
