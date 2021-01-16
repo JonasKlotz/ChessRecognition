@@ -203,6 +203,7 @@ def get_board(path, show=False):
 
     img_dim = np.shape(gray)
     img_dim = (img_dim[1], img_dim[0])
+    # todo corners
     board_corners = guess_corners(points, img_dim)
     # board_corners = find_corners(points, img_dim)
 

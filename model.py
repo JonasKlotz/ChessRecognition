@@ -16,7 +16,7 @@ import utility
 train_path = "/home/joking/Projects/Chessrecognition/data/7_classes/train/"
 test_path = "/home/joking/Projects/Chessrecognition/data/7_classes/test/"
 
-model_path = '/home/joking/Projects/Chessrecognition/models/trained_models/best_model.h5'
+model_path = '/home/joking/PycharmProjects/Chess_Recognition/models/best_model.h5'
 empty_model_path = '/home/joking/PycharmProjects/Chess_Recognition/models/empty_small_model.h5'
 
 labels = ["bishop", "empty", "king", "knight", "pawn", "queen", "rook"]

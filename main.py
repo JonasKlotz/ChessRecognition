@@ -9,7 +9,7 @@ import model
 # do some stuff
 import utility
 
-model_path = '/home/joking/Projects/Chessrecognition/models/trained_models/best_model.h5'
+model_path = '/home/joking/PycharmProjects/Chess_Recognition/models/best_model.h5'
 
 
 # problem der richtige geht nach rechts der falsche geht nach unten

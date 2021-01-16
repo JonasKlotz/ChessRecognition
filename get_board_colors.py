@@ -11,8 +11,6 @@ fen_gen_small = ["b", "1", "k", "n", "p", "q", "r", ]
 1 is white 0 is black
 @:returns 1 if field is white, 0 if black
 """
-
-
 def find_field_colour(img, show=False):
     gray_square = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray_square, (5, 5), 0)
@@ -92,7 +90,7 @@ def get_piece_colors(square_list, board_color, empty_fields):
 
             n_white_pix = cv2.countNonZero(out)
             n_black_pix = rows * cols - n_white_pix
-            thresh = (rows * cols) / 3.5  # threshhold 1/3 of img has to be of the other color (maybe pay around)
+            thresh = (rows * cols) / 3.5  # threshhold 1/3.5 of img has to be of the other color (maybe pay around)
 
             if field_color == 1:  # field is white
                 if n_white_pix >= thresh:  # threshold einsetzen wie großer teil des bildes darf besetzt sein
