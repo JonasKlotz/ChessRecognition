@@ -43,7 +43,7 @@ def process_image(path, save=False):
     fen = get_fen.get_fen_from_predictions(predictions, squares)
     elapsed_time = time.process_time() - start_time
     print("Get Fen took ", elapsed_time, "seconds...")
-
+    return fen
 
 if __name__ == '__main__':
     # Create the parser
