@@ -32,8 +32,12 @@ def upload_file():
             img = np.asarray(bytearray(file.read()))
             tmp_path = os.path.join("tmp/", file.filename)
             cv2.imwrite(tmp_path, img)
-            print("Success")
-            # fen = process_image(tmp_path,)
+            print("Wrote image to ", tmp_path)
+            try:
+                # fen = process_image(tmp_path,)
+                print("Success")
+            except:
+                print("ERROR no fen found")
         json = {'fen': fen, 'time': time() - start}
         return jsonify(json)
     return '''
