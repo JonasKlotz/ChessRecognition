@@ -8,7 +8,7 @@ import shutil
 import cv2
 import numpy as np
 
-from detectboard import debug
+import debug
 from detectboard.cps import cps
 from detectboard.image_object import ImageObject
 from detectboard.laps import laps, check_board_position
@@ -80,6 +80,10 @@ def __layer(img):
 
     # Step 2 --- Lattice points search
     points = laps(img['main'], lines)
+
+    debug.DebugImage(img['main']) \
+        .points(points, color=(0, 0, 255)) \
+        .save("points_debug")
 
     # Step 3 --- Chessboard position search
     four_points = cps(img['main'], points, lines)

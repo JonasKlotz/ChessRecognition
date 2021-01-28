@@ -12,7 +12,7 @@ import pyclipper
 from scipy.spatial import ConvexHull
 from sklearn.cluster import DBSCAN
 
-from detectboard import debug
+import debug
 
 
 def __order_points(pts):
@@ -216,7 +216,6 @@ def cps(img, points, lines):
         return ptp_cache[idx]
 
     points = __check_correctness(__normalize(points), img.shape)
-
     # Clustering
     __points = {}
     points = __sort_points(points)

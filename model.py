@@ -34,6 +34,7 @@ logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 def load_training_dataset(training_dir, test_dir):
     train = ImageDataGenerator(rescale=1. / 255,
+                               featurewise_center=True,
                                horizontal_flip=True,
                                width_shift_range=0.2,
                                height_shift_range=0.2,
@@ -42,7 +43,7 @@ def load_training_dataset(training_dir, test_dir):
                                zoom_range=0.5,
                                fill_mode='nearest',
                                )
-    val = ImageDataGenerator(rescale=1 / 255)
+    val = ImageDataGenerator(rescale=1 / 255, featurewise_center=True, )
 
     img_shape = 150
 

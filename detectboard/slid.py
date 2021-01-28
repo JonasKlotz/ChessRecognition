@@ -6,7 +6,7 @@ import math
 import cv2
 import numpy as np
 
-from detectboard import debug
+import debug
 
 
 def __slid_segments(img):

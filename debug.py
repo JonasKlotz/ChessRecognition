@@ -6,11 +6,14 @@ from copy import copy
 from random import randint
 
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 
-DEBUG = False  # Enable or disable debug images
+import get_points
+
+DEBUG = True  # Enable or disable debug images
 COUNTER = itertools.count()
-DEBUG_SAVE_DIR = "data/boards/debug_steps/"
+DEBUG_SAVE_DIR = "debug/"
 
 
 def rand_color():
@@ -39,6 +42,34 @@ class DebugImage:
                 cv2.line(self.img, tuple(li1), tuple(li2), color, size)
         return self
 
+    def hough_lines(self, _lines, color=(0, 0, 255), size=2):
+        if DEBUG:
+            for distance, angle in _lines:
+                a = np.cos(angle)
+                b = np.sin(angle)
+                x0 = a * distance
+                y0 = b * distance
+                x1 = int(x0 + 2000 * (-b))
+                y1 = int(y0 + 2000 * a)
+                x2 = int(x0 - 2000 * (-b))
+                y2 = int(y0 - 2000 * a)
+                cv2.line(self.img, (x1, y1), (x2, y2), color, size)
+        return self
+
+    def plot_lines_peaks(self, lines):
+
+        fig = plt.figure()
+        ax = fig.add_axes([0, 0, 1, 1])
+        angles = ['0', '30', '60', '90', '120', '150']
+        plot_lines = [0] * len(angles)
+
+        for _, angle in lines:
+            i = get_points.det_intervall(angle)
+            plot_lines[i] += 1
+        print(plot_lines)
+        ax.bar(angles, plot_lines)
+        plt.show()
+
     def points(self, _points, color=(0, 0, 255), size=10):
         """Draw points in the image."""
         if DEBUG:
@@ -58,3 +89,4 @@ class DebugImage:
 
             cv2.imwrite(DEBUG_SAVE_DIR + __prefix + filename + ".jpg",
                         self.img)
+        print(DEBUG_SAVE_DIR + __prefix + filename + ".jpg")
