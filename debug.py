@@ -70,7 +70,7 @@ class DebugImage:
         ax.bar(angles, plot_lines)
         plt.show()
 
-    def points(self, _points, color=(0, 0, 255), size=10):
+    def points(self, _points, color=rand_color(), size=10):
         """Draw points in the image."""
         if DEBUG:
             for point in _points:
@@ -89,4 +89,4 @@ class DebugImage:
 
             cv2.imwrite(DEBUG_SAVE_DIR + __prefix + filename + ".jpg",
                         self.img)
-        print(DEBUG_SAVE_DIR + __prefix + filename + ".jpg")
+            print(DEBUG_SAVE_DIR + __prefix + filename + ".jpg")

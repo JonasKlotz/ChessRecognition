@@ -9,8 +9,8 @@ import onnxruntime
 from scipy.cluster.hierarchy import single, fcluster
 from scipy.spatial.distance import pdist
 
-from detectboard import debug, image_object
-from detectboard import poly_point_isect
+import debug
+from detectboard import poly_point_isect, image_object
 
 __LAPS_SESS = onnxruntime.InferenceSession(
     "/home/joking/PycharmProjects/Chess_Recognition/detectboard/models/laps_model.onnx")

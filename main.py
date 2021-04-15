@@ -9,7 +9,7 @@ import model
 # do some stuff
 import utility
 
-model_path = '/home/joking/PycharmProjects/Chess_Recognition/models/best_model.h5'
+model_path = '/home/joking/PycharmProjects/Chess_Recognition/models/best_sma_model.h5'
 
 
 # problem der richtige geht nach rechts der falsche geht nach unten
@@ -31,6 +31,7 @@ def process_image(path, save=False):
     elapsed_time = time.process_time() - start_time
     print("Processing took ", elapsed_time, "seconds...")
 
+    # get Predictions
     start_time = time.process_time()
     reloaded_model = model.load_compiled_model(model_path)
     predictions = model.get_predictions(reloaded_model, tensor_list)
@@ -38,7 +39,7 @@ def process_image(path, save=False):
     elapsed_time = time.process_time() - start_time
     print("Model took ", elapsed_time, "seconds...")
 
-
+    # Evaluate Predictions
     start_time = time.process_time()
     fen = get_fen.get_fen_from_predictions(predictions, squares)
     elapsed_time = time.process_time() - start_time
@@ -67,6 +68,6 @@ if __name__ == '__main__':
     save = args.save
 
     # print(vars(args))
-    # path = "data/chessboards/1.jpg"
+    path = "data/chessboards/1.jpg"
     print("Loading board from ", input_path)
     process_image(input_path, save=save)

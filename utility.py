@@ -238,3 +238,13 @@ def fill_dir_with_squares(board_path, squares):
         print("Couldnt save the image")
 
     return path
+
+
+def create_dir(parent_dir, dir_name):
+    path = os.path.join(parent_dir, dir_name)
+    try:
+        os.mkdir(path)
+        print("Directory '%s' created" % path)
+    except:
+        print("Directory  already exists")
+    return path
