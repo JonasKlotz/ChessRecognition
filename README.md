@@ -2,6 +2,8 @@
 
 ## Setup
 - install requirements from file
+- create debug folder in the project
+
 
 ## Find the corners
 - There are two  files that search for corners in a given picture
