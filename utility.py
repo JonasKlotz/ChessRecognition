@@ -120,7 +120,7 @@ def plotImages(images_arr):
 #
 
 # In[49]:
-def load_image_to_tensor(img):
+def load_image_to_tensor(img, image_size):
     img_tensor = image.img_to_array(img)  # (height, width, channels)
     img_tensor = np.expand_dims(img_tensor,
                                 axis=0)  # (1, height, width, channels), add a dimension because the model expects this shape: (batch_size, height, width, channels)
@@ -128,24 +128,24 @@ def load_image_to_tensor(img):
     return img_tensor
 
 
-"""
-@input: a list of images of squares
-@returns: tensor list of the given squares
-"""
-
-
-def load_tensor_list_from_squares(square_list):
+def load_tensor_list_from_squares(square_list, image_size=150):
+    """
+    @input: a list of images of squares
+    @returns: tensor list of the given squares
+    """
     tensor_list = []
     for square in square_list:
-        tensor_list.append(load_image_to_tensor(square))
+        tensor_list.append(load_image_to_tensor(square, image_size=image_size))
 
     return tensor_list
 
 
-def load_image_path_to_tensor(img_path, show=False):
+def load_image_path_to_tensor(img_path, image_size, show=False):
     """load image in tensorformat
     """
-    img = image.load_img(img_path, target_size=(150, 150))
+
+    img = image.load_img(img_path, target_size=(image_size, image_size))
+
     img_tensor = image.img_to_array(img)  # (height, width, channels)
     img_tensor = np.expand_dims(img_tensor,
                                 axis=0)  # (1, height, width, channels), add a dimension because the model expects this shape: (batch_size, height, width, channels)
@@ -176,7 +176,7 @@ def load_square_lists_from_dir(dir_path):
 
     tensor_list, square_list = [], []
     for addr in addrs:
-        img = load_image_path_to_tensor(addr)
+        img = load_image_path_to_tensor(addr, image_size=150)
         tensor_list.append((img))
         square_list.append(load_square(addr))
 

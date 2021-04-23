@@ -60,13 +60,13 @@ def load_compiled_model(path):
     return model
 
 
-def save_model(model, parent_dir):
+def save_model(model, model_name, parent_dir):
     """
     saves model
     :param model:
     :param parent_dir:
     """
-    saved_keras_model_filepath = os.path.join(parent_dir, 'saved_small_Model.h5')
+    saved_keras_model_filepath = os.path.join(parent_dir, '{}.h5'.format(model_name))
 
     model.save(saved_keras_model_filepath)
     print("Model saved to: " + saved_keras_model_filepath)
@@ -168,7 +168,7 @@ def generate_callbacks(parent_dir):
     :param parent_dir: location to save
     :return: list containing callbacks
     """
-    best_save_string = os.path.join(parent_dir, './model.h5')
+    best_save_string = os.path.join(parent_dir, 'model.h5')
     log_folder = os.path.join(parent_dir, 'logs/fit')  # parent_dir + "/logs/fit/"
 
     early_stopping = EarlyStopping(monitor='val_loss', patience=5)

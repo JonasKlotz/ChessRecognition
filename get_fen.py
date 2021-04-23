@@ -6,18 +6,18 @@ import model
 import utility
 
 fen_gen_small = ["b", "1", "k", "n", "p", "q", "r", ]
+
+
 # 1 is empty
 
 
-"""
-@returns list that contains true if field is empty 
-used to evaluate piece color
-takes fields where highest probability is that it is empty
-should work out at beginning as emtpy fields can be recognized quite good
-"""
-
-
 def collect_emtpy_squares(predictions):
+    """
+    used to evaluate piece color
+    takes fields where highest probability is that it is empty
+    :param predictions
+    :return: list that contains true if field is empty
+    """
     empty = np.argsort(-1 * predictions[:, 1])  # sort empty fields after predictions
     empty_fields = [False] * 64
     empty_count = 0
@@ -309,22 +309,7 @@ if __name__ == '__main__':
     empty_fields = collect_emtpy_squares(predictions)
     board_colors, piece_colors = get_board_colors.get_colors(square_list, empty_fields)
 
-    fen_array = get_fen_array(predictions, piece_colors, board_colors)
-    fen = get_fen_from_array(fen_array)
-    print(fen)
+    # fen_array = get_fen_array(predictions, piece_colors, board_colors)
+    # fen = get_fen_from_array(fen_array)
+    # print(fen)
     # utility.display_fen_board(fen, save=False)
-
-
-def load_single_image():
-    img_path = '/home/joking/Projects/Chessrecognition/Data/output_test/bk/0760_4.jpg'
-
-    #
-    # load a single image
-    # new_image = utility.load_image(img_path, show=False)
-    # check prediction
-    # pred = reloaded_keras_model.predict(new_image)
-    # print(np.squeeze(pred).shape)
-    # index = np.argmax(pred[0])
-    # print(pieces[index])
-
-    # plot_prob(pred[0], pieces, new_image)

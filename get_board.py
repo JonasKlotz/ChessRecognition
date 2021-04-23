@@ -305,9 +305,6 @@ def remove_wrong_outline(squares, counter):
     zeros = np.zeros(step)
     ones = np.ones(step)
 
-    fig = plt.figure(figsize=(10, 10))
-    plt.imshow(cropped)
-    plt.show()
     first_col, first_row, last_col, last_row = [], [], [], []  # color array der entsprechenden zeile/spalte
     f_c_index, f_r_index, l_c_index, l_r_index = [], [], [], []  # zugehörige indizes
     # TODO OPTIMIERUNG
@@ -387,12 +384,3 @@ def remove_wrong_outline(squares, counter):
     return squares
 
 
-if __name__ == '__main__':
-    for i in range(1):
-        # i = 12
-        path = "data/chessboards/" + str(i) + ".jpg"
-        cropped = get_board(path, show=True)
-        squares, board_img = get_squares(cropped, show=False)  #
-        print("Anzahl gefundene Squares ", len(squares))
-
-        # utility.fill_dir_with_squares(path, squares)

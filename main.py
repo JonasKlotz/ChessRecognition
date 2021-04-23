@@ -1,6 +1,7 @@
 # main.py
 # Import the argparse library
 import argparse
+import logging
 import time
 
 import get_fen
@@ -9,8 +10,9 @@ import model
 # do some stuff
 import utility
 
-model_path = '/home/joking/PycharmProjects/Chess_Recognition/models/best_sma_model.h5'
+model_path = '/home/joking/PycharmProjects/Chess_Recognition/models/20210415-173923_InceptionResNetV2/model.h5'
 
+logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 # problem der richtige geht nach rechts der falsche geht nach unten
 def process_image(path, save=False):
@@ -20,7 +22,11 @@ def process_image(path, save=False):
     # squares, board_img = get_board.get_squares(cropped, show=False)  #
     # print("Anzahl gefundene Squares ", len(squares))
 
-    squares, board_img = get_slid.get_board_slid(path)
+    squares, board_img, corners = get_slid.get_board_slid(path)
+
+    for square in squares:
+        print("Image Shape, ", square.shape)
+
     if save:
         save_path = utility.fill_dir_with_squares(path, squares)
         print("Saved to '%s'" % save_path)

@@ -1,9 +1,10 @@
-import glob
+import argparse
 import os
 
 import chess.pgn
 import cv2
 
+import debug
 from detectboard.detect_board import detect_input_board
 
 
@@ -20,12 +21,18 @@ def split_board(img):
 
 
 def get_board_slid(board_path):
+    """
+
+    :param board_path: path to a board image
+    :return: squares images, cropped image and coordinates of the corners
+    """
     corners = detect_input_board(board_path)
     head, tail = os.path.split(board_path)
     tmp_dir = os.path.join(head, "tmp/")
     cropped = cv2.imread(tmp_dir + tail)
+
     squares = split_board(cropped)
-    return squares, cropped
+    return squares, cropped, corners
 
 
 def pgn_to_fen_list(png_path):
@@ -42,17 +49,29 @@ def pgn_to_fen_list(png_path):
 
 
 if __name__ == '__main__':
-    pgn_name = "DingvsCarlsen2019.pgn"
-    dir_path = "/home/joking/Carlsen Ding Images"
-    addrs = glob.glob(dir_path + "/*.png")
+    # Create the parser
+    my_parser = argparse.ArgumentParser(prog='Chessy',
+                                        description='Chessrecognition programm, evaluates a picture of a chess programm and ')
 
-    fen_list = pgn_to_fen_list(dir_path + "/" + pgn_name)
-    for i in range(len(addrs)):
-        addr = addrs[i]
-        img = cv2.imread(addr)
-        # cv2.imshow("img", img)
-        # cv2.waitKey(0)
-        fen = fen_list[i]
-        print(addr, fen)
-        squares, cropped = get_board_slid(addr)
-        break
+    # Add the arguments
+    my_parser.add_argument('Path',
+                           metavar='image_path',
+                           type=str,
+                           help='the path to the image')
+
+    # Execute parse_args()
+    args = my_parser.parse_args()
+
+    input_path = args.Path
+    img = cv2.imread(input_path, 1)
+    print("Loading board from ", input_path)
+
+    squares, cropped, corners = get_board_slid(input_path)
+
+    print(corners)
+    debug.DebugImage(cropped) \
+        .save("get_slid_cropped image")
+
+    debug.DebugImage(img) \
+        .points(corners, color=(0, 0, 255), size=10) \
+        .save("get_points_final_corners")
