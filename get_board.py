@@ -10,8 +10,8 @@ import scipy.cluster as clstr
 import scipy.spatial as spatial
 from matplotlib import pyplot as plt
 
-import get_board_colors
 import utility
+from calculate_fen.get_board_colors import find_field_colour
 
 
 def auto_canny(image, sigma=0.33):
@@ -313,22 +313,22 @@ def remove_wrong_outline(squares, counter):
     for i in range(step):
         # erste spalte
         img = squares[(i)]
-        first_col.append(get_board_colors.find_field_colour(img, False))
+        first_col.append(find_field_colour(img, False))
         f_c_index.append(i)
 
         # erste zeile
         img = squares[(i) * step]
-        first_row.append(get_board_colors.find_field_colour(img, False))
+        first_row.append(find_field_colour(img, False))
         f_r_index.append(i * step)
 
         # letzte spalte
         img = squares[(-i - 1)]
-        last_col.append(get_board_colors.find_field_colour(img, False))
+        last_col.append(find_field_colour(img, False))
         l_c_index.append((-i - 1))
 
         # letzte zeile
         img = squares[(i + 1) * step - 1]
-        last_row.append(get_board_colors.find_field_colour(img, False))
+        last_row.append(find_field_colour(img, False))
         l_r_index.append((i + 1) * step - 1)
 
         # thresh ab wann cut??

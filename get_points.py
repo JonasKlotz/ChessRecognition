@@ -230,7 +230,7 @@ def get_corners(points):
     a, b, c, d = corners
     max_area = quad_area(a, b, c, d)
 
-    # as long as there are point in the hull
+    # as long as there are points in the hull
     while hull:
         # get random
         new_node = hull.pop()

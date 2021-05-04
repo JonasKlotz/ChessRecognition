@@ -120,22 +120,27 @@ def plotImages(images_arr):
 #
 
 # In[49]:
-def load_image_to_tensor(img, image_size):
-    img_tensor = image.img_to_array(img)  # (height, width, channels)
+def load_image_to_tensor(img, image_size, preprocess_input):
+    """img_tensor = image.img_to_array(img)  # (height, width, channels)
     img_tensor = np.expand_dims(img_tensor,
                                 axis=0)  # (1, height, width, channels), add a dimension because the model expects this shape: (batch_size, height, width, channels)
-    img_tensor /= 255.  # imshow expects values in the range [0, 1]
+    img_tensor /= 255.  """
+    img = cv2.resize(img, (image_size, image_size))
+
+    img_tensor = preprocess_input(img)
+    img_tensor = np.expand_dims(img_tensor,
+                                axis=0)
     return img_tensor
 
 
-def load_tensor_list_from_squares(square_list, image_size=150):
+def load_tensor_list_from_squares(square_list, image_size, preprocess_input):
     """
     @input: a list of images of squares
     @returns: tensor list of the given squares
     """
     tensor_list = []
     for square in square_list:
-        tensor_list.append(load_image_to_tensor(square, image_size=image_size))
+        tensor_list.append(load_image_to_tensor(square, image_size, preprocess_input))
 
     return tensor_list
 
@@ -217,27 +222,18 @@ BUGGYYYY
 """
 
 
-def fill_dir_with_squares(board_path, squares):
-    board_dir_path = board_path.replace(".jpg", "")
-    board_number_string = board_dir_path.replace("data/chessboards/", "")
-    parent_dir = board_dir_path.replace(board_number_string, "") + "squares/"
-    parent_dir = '/home/joking/PycharmProjects/Chess_Recognition/data/chessboards/squares'
-    path = os.path.join(parent_dir, board_number_string)
-
+def fill_dir_with_squares(save_path, squares):
     try:
-        os.mkdir(path)
-        print("Directory '%s' created" % path)
+        os.mkdir(save_path)
+        print("Directory '%s' created" % save_path)
     except:
         print("Directory  already exists")
-    k = 0
     try:
-        for square in squares:
-            cv2.imwrite(path + "/" + str(k) + '.jpg', square)  # './data/chessboards/squares/' + str(i)
+        for k, square in enumerate(squares):
+            cv2.imwrite(save_path + "/" + str(k) + '.jpg', square)  # './data/chessboards/squares/' + str(i)
             k += 1
     except:
         print("Couldnt save the image")
-
-    return path
 
 
 def create_dir(parent_dir, dir_name):

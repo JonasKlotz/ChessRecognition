@@ -11,7 +11,7 @@ import numpy as np
 
 import get_points
 
-DEBUG = True  # Enable or disable debug images
+DEBUG = False  # Enable or disable debug images
 COUNTER = itertools.count()
 DEBUG_SAVE_DIR = "debug/"
 

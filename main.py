@@ -4,17 +4,33 @@ import argparse
 import logging
 import time
 
-import get_fen
 import get_slid
 import model
 # do some stuff
 import utility
+from calculate_fen.get_fen import get_fen_from_predictions
 
-model_path = '/home/joking/PycharmProjects/Chess_Recognition/models/20210415-173923_InceptionResNetV2/model.h5'
+##### Model Specific Parameters
+# from keras.applications.inception_resnet_v2 import preprocess_input
+# from keras.applications.resnet_v2 import preprocess_input
+
+"""
+# Mobile Net V2
+from keras.applications.mobilenet_v2 import preprocess_input
+num_of_classes=13
+img_size = 224
+model_path = '/home/joking/PycharmProjects/Chess_Recognition/models/13_class_MobileNetV2/model.h5'
+"""
+# Resnet V2
+from keras.applications.inception_resnet_v2 import preprocess_input
+
+num_of_classes = 7
+img_size = 150
+model_path = '/home/joking/PycharmProjects/Chess_Recognition/models/InceptionResNetV2/model.h5'
 
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
-# problem der richtige geht nach rechts der falsche geht nach unten
+
 def process_image(path, save=False):
     start_time = time.process_time()
 
@@ -24,15 +40,13 @@ def process_image(path, save=False):
 
     squares, board_img, corners = get_slid.get_board_slid(path)
 
-    for square in squares:
-        print("Image Shape, ", square.shape)
 
     if save:
         save_path = utility.fill_dir_with_squares(path, squares)
         print("Saved to '%s'" % save_path)
         # tensor_list, square_list = utility.load_square_lists_from_dir(save_path)
 
-    tensor_list = utility.load_tensor_list_from_squares(squares)
+    tensor_list = utility.load_tensor_list_from_squares(squares, img_size, preprocess_input)
 
     elapsed_time = time.process_time() - start_time
     print("Processing took ", elapsed_time, "seconds...")
@@ -47,7 +61,7 @@ def process_image(path, save=False):
 
     # Evaluate Predictions
     start_time = time.process_time()
-    fen = get_fen.get_fen_from_predictions(predictions, squares)
+    fen = get_fen_from_predictions(predictions, squares, num_of_classes=num_of_classes)
     elapsed_time = time.process_time() - start_time
     print("Get Fen took ", elapsed_time, "seconds...")
     return fen
