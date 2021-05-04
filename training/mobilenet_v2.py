@@ -8,7 +8,7 @@ from training.generic_model import create_model, generate_generators, train_mode
 model_name = 'MobileNetV2'
 img_shape = 224
 model_path = ""
-data_dir = "/home/joking/Projects/Chessrecognition/Data/7_classes"
+data_dir = "/home/joking/Projects/Chessrecognition/Data/13_classes"
 base_path = "./"
 
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
@@ -17,7 +17,7 @@ logging.getLogger("tensorflow").setLevel(logging.ERROR)
 def start_training():
     base_model = MobileNetV2(input_shape=(img_shape, img_shape, 3), include_top=False,
                              weights='imagenet', alpha=0.5)
-    model = create_model(base_model, trainable=126)
+    model = create_model(base_model, trainable=126, classes=13)
 
     # save_model(model, model_name, base_path)
     # on cluster
