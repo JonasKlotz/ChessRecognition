@@ -18,7 +18,7 @@ from utility import create_dir
 class_names = ["bishop", "empty", "king", "knight", "pawn", "queen", "rook"]
 
 
-def create_model(base_model, trainable=-1):
+def create_model(base_model, trainable=-1, classes=13):
     """
     Creates and compiles model based on given model
 
@@ -30,7 +30,7 @@ def create_model(base_model, trainable=-1):
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
     x = Dense(1024, activation='relu')(x)
-    predictions = Dense(7, activation='softmax')(x)  # 7 classes for no color detection
+    predictions = Dense(classes, activation='softmax')(x)  # 7 classes for no color detection
 
     model = Model(inputs=base_model.input, outputs=predictions)
 
@@ -186,8 +186,7 @@ def generate_callbacks(parent_dir):
                      embeddings_freq=1),
 
     # return [early_stopping, save_best, tb, LambdaCallback(on_epoch_end=log_confusion_matrix)]
-    return [early_stopping, save_best, tb]
-
+    return [early_stopping, save_best]  # , tb]
 
 def evaluate_model(model, test_dataset, parent_dir, history):
     """

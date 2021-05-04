@@ -5,13 +5,12 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
-fen_gen_small = ["b", "1", "k", "n", "p", "q", "r", ]
 
-""" input field output color
-1 is white 0 is black
-@:returns 1 if field is white, 0 if black
-"""
 def find_field_colour(img, show=False):
+    """ input field output color
+    1 is white 0 is black
+    @:returns 1 if field is white, 0 if black
+    """
     gray_square = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray_square, (5, 5), 0)
     _, img_binary = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
@@ -22,7 +21,7 @@ def find_field_colour(img, show=False):
 
     rows, cols = img_binary.shape
 
-    if show == True:
+    if show:
         fig = plt.figure(figsize=(3, 3))
         plt.imshow(img)
         plt.show()
@@ -35,13 +34,11 @@ def find_field_colour(img, show=False):
     return 0
 
 
-"""
-compares board to the 2 possible boards
-@:returns board color array
-"""
-
-
 def compare_board(board_to_compare):
+    """
+    compares board to the 2 possible boards
+    @:returns board color array
+    """
     board_1 = [0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0,
                1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0]
     board_2 = [1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1,
@@ -52,14 +49,12 @@ def compare_board(board_to_compare):
     return board_2
 
 
-""" 
-gets quares as input
-collects their color
-@:returns board color array
-"""
-
-
 def find_board_colour(square_list):
+    """
+    gets quares as input
+    collects their color
+    @:returns board color array
+    """
     board_color = np.zeros(len(square_list), dtype=int)  # für jedes square eine liste
     i = 0
     for i in range(len(square_list)):
@@ -109,6 +104,12 @@ def get_piece_colors(square_list, board_color, empty_fields):
 
 
 def get_colors(square_list, empty_fields):
+    """
+    main function to get Colors
+    :param square_list:
+    :param empty_fields:
+    :return:
+    """
     board_color = find_board_colour(square_list)
     piece_colors = get_piece_colors(square_list, board_color, empty_fields)
     return board_color, piece_colors
