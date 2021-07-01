@@ -11,9 +11,15 @@ import numpy as np
 
 import get_points
 
-DEBUG = False  # Enable or disable debug images
+DEBUG = True  # Enable or disable debug images
 COUNTER = itertools.count()
 DEBUG_SAVE_DIR = "debug/"
+
+
+def reset_counter():
+    """ Resetounter"""
+    global COUNTER
+    COUNTER = itertools.count()
 
 
 def rand_color():
@@ -57,18 +63,26 @@ class DebugImage:
         return self
 
     def plot_lines_peaks(self, lines):
+        if DEBUG:
+            angles = ['0', '30', '60', '90', '120', '150']
+            plot_lines = [0] * len(angles)
 
-        fig = plt.figure()
-        ax = fig.add_axes([0, 0, 1, 1])
-        angles = ['0', '30', '60', '90', '120', '150']
-        plot_lines = [0] * len(angles)
+            for _, angle in lines:
+                i = get_points.det_intervall(angle, 0)
+                plot_lines[i] += 1
 
-        for _, angle in lines:
-            i = get_points.det_intervall(angle)
-            plot_lines[i] += 1
-        print(plot_lines)
-        ax.bar(angles, plot_lines)
-        plt.show()
+            # plt.figure(figsize=(12, 7))
+            fig, ax = plt.subplots(1, 1)
+            # Passing the parameters to the bar function, this is the main function which creates the bar plot
+            plt.bar(angles, plot_lines)
+
+            plt.title("Bar plot representing angles of the lines in an image")
+            ax.bar(angles, plot_lines, color="blue", zorder=3)
+            ax.grid(zorder=0)
+            plt.xlabel("Angle in degree")
+            plt.ylabel("Number of lines in image")
+            # fig.savefig('comparison.png', dpi=200)
+            plt.show()
 
     def points(self, _points, color=rand_color(), size=10):
         """Draw points in the image."""

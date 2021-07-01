@@ -21,6 +21,9 @@ def get_fen_from_predictions(predictions, squares, num_of_classes):
 
     field_colors, piece_colors = get_colors(squares, empty_fields)
 
+    # TODO WENN BRETT GEDREHT BRETT DREHEN!!!!!
+    # wenn unteres rechtes Feld nicht weiß ist, muss das brett gedreht werden
+    # dazu finden was unteres rechtes feld ist, funktion für "drehen"
     fen_array = get_fen_array(predictions, piece_colors, field_colors, empty_fields)
     fen = get_fen_from_array(fen_array)
 

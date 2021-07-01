@@ -1,5 +1,4 @@
-import argparse
-import math
+import logging
 from collections import defaultdict
 from copy import copy
 
@@ -8,9 +7,9 @@ import numpy as np
 import scipy.cluster as clstr
 import scipy.spatial as spatial
 from scipy.spatial import ConvexHull
-from sklearn.cluster import DBSCAN
 
 import debug
+import get_slid
 
 
 def simplify_image(img, limit, grid, iters):
@@ -25,6 +24,9 @@ def simplify_image(img, limit, grid, iters):
     if limit != 0:
         kernel = np.ones((10, 10), np.uint8)
         img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
+
+    debug.DebugImage(img) \
+        .save("Simplified_image")
     return img
 
 
@@ -43,7 +45,15 @@ def canny_edge(img, sigma=0.33):
     edged = cv2.Canny(img, lower, upper)
 
     # return the edged image
-    return edged
+
+    # Otsu's thresholding
+    _, otsu = cv2.threshold(edged, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    # debug.DebugImage(otsu).save("canny edge processed")
+
+    debug.DebugImage(otsu) \
+        .save("edge_map")
+
+    return otsu
 
 
 def get_hough_lines(img):
@@ -58,11 +68,15 @@ def get_hough_lines(img):
     return lines
 
 
-def det_intervall(angle):
+def find_line_clusters():
+    pass
+
+
+def det_intervall(angle, centroid):
     """
     determines the interval where the input angle is
     """
-    n = angle * (180 / np.pi)
+    n = (angle * (180 / np.pi) + centroid) % 180
     # print("n = ", n)
 
     if n <= 15 or n > 165:
@@ -77,31 +91,10 @@ def det_intervall(angle):
         return 4
     if 135 < n <= 165:
         return 5
-    # define angles in 15 steps
-    """
-    angle_map = {0:(7.5,172.5),
-                 1 :(7.5, 22.5),
-                 2 :(22.5, 37.5),
-                 3 :(37.5, 52.5),
-                 4 :(52.5, 67.5),
-                 5 :(67.5, 82.5),
-                 6 :(82.5, 97.5),
-                 7 :(97.5, 112.5),
-                 8 :(112.5, 127.5),
-                 9 :(127.5, 142.5),
-                 10:(142.5, 157.5),
-                 11:(157.5, 172.5)}
-    n = angle * (180 / np.pi)
-    for i in angle_map.keys():
-        if i == 0:
-            if n <= angle_map[i][0] or n > angle_map[i][1]:
-                return i
-        else:
-            if angle_map[i][0] < n <= angle_map[i][1]:
-                return i """
 
 
-"""  """
+from sklearn.cluster import DBSCAN
+from collections import Counter
 
 
 def find_peak_angles(lines):
@@ -111,9 +104,34 @@ def find_peak_angles(lines):
     # 0/180&90, 30&120, 60&150
     # how many intervals?
     line_array = [[] for _ in range(6)]
+    angle_array = []
+    angle_array = np.zeros(len(lines))
+    # create arrax containing all angles in grad
+    for i in range(len(lines)):
+        distance, angle = lines[i]
+        angle_array[i] = angle * (180 / np.pi)
+
+    # cluster angles with db scan
+    clustering = DBSCAN(eps=5, min_samples=8).fit(angle_array.reshape(-1, 1))
+    labels = clustering.labels_
+
+    # find 2 biggest clusters
+    mc = Counter(labels).most_common(2)
+    index_cluster_1 = mc[0][0]
+    # index_cluster_2, = mc[1][0]
+    # print(index_cluster_1, index_cluster_2)
+
+    # biggest cluster centroid
+    points_of_cluster_0 = angle_array[labels == index_cluster_1]
+    centroid_of_cluster_0 = np.mean(points_of_cluster_0, axis=0)
+    # print("centroid 0 ", centroid_of_cluster_0)
+
+    # points_of_cluster_1 = angle_array[labels == index_cluster_2]
+    # centroid_of_cluster_1 = np.mean(points_of_cluster_1, axis=0)
+    # print("centroid 01 ", centroid_of_cluster_1)
 
     for distance, angle in lines:
-        angle_index = det_intervall(angle)  # find interval of the angle
+        angle_index = det_intervall(angle, centroid_of_cluster_0)  # find interval of the angle
         line_array[angle_index].append((distance, angle))  # append line to line array
 
     # print(len(line_array[angle_index]))
@@ -264,7 +282,7 @@ def four_point_transform(img, points, square_length=1816):
     transforms image warps the perspective so that the 4 points are now the full img
     :param img:
     :param points:
-    :param square_length:
+    :param square_length:  resulting size of cropped board
     :return:
     """
     pts1 = np.float32(points)
@@ -288,7 +306,6 @@ def get_points(img=None, img_path=None):
 
     # rows, columns, and channels (if the image is color):
     height, width, d = img.shape
-    # print("Breite ", width, " Höhe ", height)
     clahe_settings = [[3, (2, 6), 5],  # @1
                       [3, (6, 2), 5],  # @2
                       [5, (3, 3), 5],  # @3
@@ -298,43 +315,51 @@ def get_points(img=None, img_path=None):
     all_points = []
 
     for key, arr in enumerate(clahe_settings):
-        tmp = simplify_image(img, limit=arr[0], grid=arr[1], iters=arr[2])
-        tmp = canny_edge(tmp)
+        try:
+            tmp = simplify_image(img, limit=arr[0], grid=arr[1], iters=arr[2])
+            tmp = canny_edge(tmp)
 
-        # get hough lines in right shape
-        lines = get_hough_lines(tmp)
-        # print_hough_lines(lines, img.copy())
+            # get hough lines in right shape
+            lines = get_hough_lines(tmp)
+            debug.DebugImage(img) \
+                .hough_lines(lines, (0, 0, 255)) \
+                .save("all lines")
 
-        # fing maximum in angle peaks choose orthogonal lines
-        h, v = find_peak_angles(lines)
-        # print_hough_lines(h+v, img.copy())
-        # find intersections
-        points = intersections(h, v, [height, width])
+            debug.DebugImage(img).plot_lines_peaks(lines)
+            # find maximum in angle peaks choose orthogonal lines
+            h, v = find_peak_angles(lines)
+            debug.DebugImage(img) \
+                .hough_lines(v, (0, 0, 255)) \
+                .hough_lines(h, (0, 255, 0)) \
+                .save("horizontal and vertical lines")
 
-        # Todo: Was wenn ich nicht davor clustere, wie wirkt sich das auf mein Endergebnis aus?
-        points = cluster(points)
-        # print_points(points, img)
-        # all_points.append(points)
+            # find intersections
+            points = intersections(h, v, [height, width])
 
-        # Problem Outlier points
-        if not first_iteration:
-            all_points = points
-            first_iteration = True
-        else:
+            # Todo: Was wenn ich nicht davor clustere, wie wirkt sich das auf mein Endergebnis aus?
+            points = cluster(points)
+            # print_points(points, img)
+            # all_points.append(points)
 
-            # if points.s == None: continue
-            all_points = np.concatenate((all_points, points), axis=0)
+            # Problem Outlier points
+            if not first_iteration:
+                all_points = points
+                first_iteration = True
+            else:
 
+                # if points.s == None: continue
+                all_points = np.concatenate((all_points, points), axis=0)
+        except:
+            logging.error("Iteration Failed")
+            continue
     # combine cluster
     # test = combine_points2(all_points, img)
-    debug.DebugImage(img) \
-        .points(all_points, color=(0, 0, 255), size=10) \
-        .save("get_points_combined_points")
+
 
     points = cluster(all_points)
 
     debug.DebugImage(img) \
-        .points(points, color=(0, 0, 255), size=10) \
+        .points(points, color=(0, 0, 255), size=30) \
         .save("get_points_final_points")
 
     corners = get_corners(points)
@@ -345,68 +370,9 @@ def get_points(img=None, img_path=None):
     return corners
 
 
-def combine_points2(all_points, img):
-    """ combines the given point lists
-    only accepts points that are in at least two of the point arrays
-    returns clustered and reduced version with more probable points
-    """
-
-    debug.DebugImage(img) \
-        .points(all_points, color=(0, 255, 0)) \
-        .save("get_points_unclustered_points", prefix=True)
-
-    alfa = math.sqrt(cv2.contourArea(np.array(all_points)) / 81) * 3  # how do i optimally choose alfa ???
-    X = DBSCAN(eps=alfa).fit(all_points)
-
-    # splits all points in different lists regarding labels form dbscan
-    # 0 index = -1 1st index = 1
-    labeled_points = [all_points[X.labels_ == l] for l in np.unique(X.labels_)]
-
-    print(np.unique(X.labels_))
-
-    # -1 labels
-    deb_img = debug.DebugImage(img)
-    for i in range(len(np.unique(X.labels_))):
-        deb_img = deb_img.points(labeled_points[i], color=debug.rand_color())
-    deb_img.save("get_points_clustered_points", prefix=True)
-
-
-def combine_points(points_list):
-    """ combines the given point lists
-    only accepts points that are in at least two of the point arrays
-    :param points_list list of np point arrays
-    returns clustered and reduced version with more probable points
-    """
-    _ANALYST_RADIUS = 80
-    final_points = []
-    # points_list = points.tolist()
-    print(points_list)
-    # 4 mal points
-    for i, points in enumerate(points_list):
-        # für jeden point dadrin
-        for point in points:
-            found = False
-            # für alle anderen point arrays
-            for k, set_to_check in enumerate(points_list):
-                # wenn das selbe set
-                if k == i or len(set_to_check) <= 1: continue  # problem nur der punkt selber drinne
-                neighbour = closest_point(set_to_check, point)
-                distance = spatial.distance.euclidean(neighbour, point)
-                # print(distance)
-                if distance <= _ANALYST_RADIUS:
-                    final_points.append(neighbour)
-                    set_to_check.remove(neighbour)
-                    found = True
-            if found:
-                final_points.append(point)
-                # points.remove(point)
-    # check if close point in at least one other array
-    final_points = cluster(final_points)
-    return final_points
-
 
 if __name__ == '__main__':
-    # Create the parser
+    """# Create the parser
     my_parser = argparse.ArgumentParser(prog='chess_recognition',
                                         description='Chessrecognition programm, evaluates a picture of a chess programm and ...')
 
@@ -422,13 +388,17 @@ if __name__ == '__main__':
     input_path = args.Path
 
     # print(vars(args))
-    print("Loading board from ", input_path)
-    img = cv2.imread(input_path, 1)
-    # img = cv2.imread("data/chessboards/1.jpg", 1)
+    """
+    for i in range(7, 8):
+        input_path = "/home/joking/Projects/Chessrecognition/Data/chessboards/board_recog_2/{}.jpg".format(i)
+        print("Loading board from ", input_path)
 
-    corners = get_points(img=img)
-    print(corners)
+        img = cv2.imread(input_path, 1)
 
-    debug.DebugImage(img) \
-        .points(corners, color=(0, 0, 255), size=10) \
-        .save("get_points_main_corners")
+        corners = get_points(img=img)
+
+        debug.DebugImage(img) \
+            .points(corners, color=(0, 0, 255), size=10) \
+            .save("get_points_main_corners")
+
+        squares, board_img, corners = get_slid.get_board_slid(input_path)

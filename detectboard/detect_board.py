@@ -171,6 +171,9 @@ def detect_input_board(board_path, board_corners=None):
     input_image = cv2.imread(board_path)
     head, tail = os.path.split(board_path)
     tmp_dir = os.path.join(head, "tmp/")
+    debug.DebugImage(input_image) \
+        .save("starting image")
+
     if os.path.exists(tmp_dir):
         shutil.rmtree(tmp_dir)
     print(tmp_dir)

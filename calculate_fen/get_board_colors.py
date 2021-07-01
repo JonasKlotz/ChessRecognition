@@ -73,19 +73,19 @@ def get_piece_colors(square_list, board_color, empty_fields):
 
             blur = cv2.GaussianBlur(img, (5, 5), 0)
             gray_square = cv2.cvtColor(blur, cv2.COLOR_BGR2GRAY)
-            _, img_binary = cv2.threshold(gray_square, 130, 255, cv2.THRESH_BINARY)
-            rows, cols = img_binary.shape
-            img_binary_inverted = cv2.bitwise_not(img_binary)
+            otsu_threshold, image_otsu = cv2.threshold(gray_square, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU, )
+            rows, cols = image_otsu.shape
+            img_otsu_inverted = cv2.bitwise_not(image_otsu)
 
             # remove noise
             morph_kernel = np.ones((15, 15), np.uint8)
-            out = cv2.morphologyEx(img_binary_inverted, cv2.MORPH_CLOSE, morph_kernel)
+            out = cv2.morphologyEx(img_otsu_inverted, cv2.MORPH_CLOSE, morph_kernel)
             # cv2.imshow('image',img)
             # cv2.waitKey(0)
 
             n_white_pix = cv2.countNonZero(out)
             n_black_pix = rows * cols - n_white_pix
-            thresh = (rows * cols) / 3.5  # threshhold 1/3.5 of img has to be of the other color (maybe pay around)
+            thresh = (rows * cols) / 3.5  # threshold 1/3.5 of img has to be of the other color (maybe play around)
 
             if field_color == 1:  # field is white
                 if n_white_pix >= thresh:  # threshold einsetzen wie großer teil des bildes darf besetzt sein

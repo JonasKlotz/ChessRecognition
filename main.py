@@ -88,6 +88,6 @@ if __name__ == '__main__':
     save = args.save
 
     # print(vars(args))
-    path = "data/chessboards/1.jpg"
-    print("Loading board from ", input_path)
-    process_image(input_path, save=save)
+    path = "data/chessboards/32.jpg"
+    print("Loading board from ", path)
+    process_image(path, save=save)

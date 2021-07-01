@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import math
 ## IMPORTS
 from collections import defaultdict
 
@@ -9,7 +10,9 @@ import numpy as np
 import scipy.cluster as clstr
 import scipy.spatial as spatial
 from matplotlib import pyplot as plt
+from sklearn.cluster import DBSCAN
 
+import debug
 import utility
 from calculate_fen.get_board_colors import find_field_colour
 
@@ -384,3 +387,58 @@ def remove_wrong_outline(squares, counter):
     return squares
 
 
+def combine_points2(all_points, img):
+    """ combines the given point lists
+    only accepts points that are in at least two of the point arrays
+    returns clustered and reduced version with more probable points
+    """
+
+    debug.DebugImage(img) \
+        .points(all_points, color=(0, 255, 0)) \
+        .save("get_points_unclustered_points", prefix=True)
+
+    alfa = math.sqrt(cv2.contourArea(np.array(all_points)) / 81) * 3  # how do i optimally choose alfa ???
+    X = DBSCAN(eps=alfa).fit(all_points)
+
+    # splits all points in different lists regarding labels form dbscan
+    # 0 index = -1 1st index = 1
+    labeled_points = [all_points[X.labels_ == l] for l in np.unique(X.labels_)]
+
+    # -1 labels
+    deb_img = debug.DebugImage(img)
+    for i in range(len(np.unique(X.labels_))):
+        deb_img = deb_img.points(labeled_points[i], color=debug.rand_color())
+    deb_img.save("get_points_clustered_points", prefix=True)
+
+
+def combine_points(points_list):
+    """ combines the given point lists
+    only accepts points that are in at least two of the point arrays
+    :param points_list list of np point arrays
+    returns clustered and reduced version with more probable points
+    """
+    _ANALYST_RADIUS = 80
+    final_points = []
+    # points_list = points.tolist()
+    # 4 mal points
+    for i, points in enumerate(points_list):
+        # für jeden point dadrin
+        for point in points:
+            found = False
+            # für alle anderen point arrays
+            for k, set_to_check in enumerate(points_list):
+                # wenn das selbe set
+                if k == i or len(set_to_check) <= 1: continue  # problem nur der punkt selber drinne
+                neighbour = closest_point(set_to_check, point)
+                distance = spatial.distance.euclidean(neighbour, point)
+                # print(distance)
+                if distance <= _ANALYST_RADIUS:
+                    final_points.append(neighbour)
+                    set_to_check.remove(neighbour)
+                    found = True
+            if found:
+                final_points.append(point)
+                # points.remove(point)
+    # check if close point in at least one other array
+    final_points = cluster(final_points)
+    return final_points
