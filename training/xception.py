@@ -27,7 +27,7 @@ def start_training():
     train_model(model, train_dataset, validation_dataset, test_dataset, model_name, base_path)
 
     trainable = int(model.layers / 3)
-    model = change_trainable(trainable, lr=0.00001)
+    model = change_trainable(model, trainable=trainable, lr=0.00001)
     train_model(model, train_dataset, validation_dataset, test_dataset, model_name, base_path)
 
 if __name__ == '__main__':
