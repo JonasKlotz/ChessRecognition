@@ -1,5 +1,7 @@
 # ChessRecognition
 
+## Work in Progress
+
 ## Setup
 - install requirements from file
 - create debug folder in the project
