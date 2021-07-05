@@ -165,6 +165,8 @@ def train_model(model, train_dataset, validation_dataset, test_dataset, model_na
 
 def generate_callbacks(parent_dir):
     """
+    :param reducelr_patience:
+    :param reducelr_factor:
     :param parent_dir: location to save
     :return: list containing callbacks
     """
@@ -184,7 +186,13 @@ def generate_callbacks(parent_dir):
                      update_freq='epoch',
                      profile_batch=2,
                      embeddings_freq=1),
-
+    """
+    reduce_lr = ReduceLROnPlateau(monitor='val_accuracy',
+                                  mode='max',
+                                  factor=reducelr_factor,
+                                  patience=reducelr_patience,
+                                  verbose=1)
+    """
     # return [early_stopping, save_best, tb, LambdaCallback(on_epoch_end=log_confusion_matrix)]
     return [early_stopping, save_best]  # , tb]
 
@@ -263,3 +271,15 @@ def save_history(history, parent_dir):
     """
     history_path = os.path.join(parent_dir, 'history.csv')
     pd.DataFrame.from_dict(history.history).to_csv(history_path, index=False)
+
+
+def change_trainable(model, trainable, lr):
+    if trainable > 0:
+        for layer in model.layers[:trainable]:
+            layer.trainable = False
+        for layer in model.layers[trainable:]:
+            layer.trainable = True
+
+    adam = Adam(lr=lr)
+    model.compile(adam, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    return model

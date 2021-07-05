@@ -84,7 +84,7 @@ class DebugImage:
             # fig.savefig('comparison.png', dpi=200)
             plt.show()
 
-    def points(self, _points, color=rand_color(), size=10):
+    def points(self, _points, color=rand_color(), size=3):
         """Draw points in the image."""
         if DEBUG:
             for point in _points:

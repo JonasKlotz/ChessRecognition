@@ -9,7 +9,6 @@ import scipy.spatial as spatial
 from scipy.spatial import ConvexHull
 
 import debug
-import get_slid
 
 
 def simplify_image(img, limit, grid, iters):
@@ -159,10 +158,10 @@ def intersections(h, v, dims):
     """
     height, width = dims
     points = []
-    for d1, a1 in h:
-        for d2, a2 in v:
-            A = np.array([[np.cos(a1), np.sin(a1)], [np.cos(a2), np.sin(a2)]])
-            b = np.array([d1, d2])
+    for rho1, theta1 in h:
+        for rho2, theta2 in v:
+            A = np.array([[np.cos(theta1), np.sin(theta1)], [np.cos(theta2), np.sin(theta2)]])
+            b = np.array([rho1, rho2])
             point = np.linalg.solve(A, b)
             # koords (breite, höhe)
             if 0 <= point[0] < width and 0 <= point[1] <= height:
@@ -359,7 +358,7 @@ def get_points(img=None, img_path=None):
     points = cluster(all_points)
 
     debug.DebugImage(img) \
-        .points(points, color=(0, 0, 255), size=30) \
+        .points(points, color=(0, 0, 255), size=10) \
         .save("get_points_final_points")
 
     corners = get_corners(points)
@@ -389,7 +388,7 @@ if __name__ == '__main__':
 
     # print(vars(args))
     """
-    for i in range(7, 8):
+    for i in range(22, 23):
         input_path = "/home/joking/Projects/Chessrecognition/Data/chessboards/board_recog_2/{}.jpg".format(i)
         print("Loading board from ", input_path)
 
@@ -398,7 +397,7 @@ if __name__ == '__main__':
         corners = get_points(img=img)
 
         debug.DebugImage(img) \
-            .points(corners, color=(0, 0, 255), size=10) \
+            .points(corners, color=(0, 0, 255)) \
             .save("get_points_main_corners")
 
-        squares, board_img, corners = get_slid.get_board_slid(input_path)
+    # squares, board_img, corners = get_slid.get_board_slid(input_path)
