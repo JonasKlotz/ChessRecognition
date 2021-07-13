@@ -1,3 +1,4 @@
+
 import logging
 
 from keras.applications import MobileNetV2
@@ -8,7 +9,7 @@ from training.generic_model import create_model, generate_generators, train_mode
 model_name = 'MobileNetV2'
 img_shape = 224
 model_path = ""
-data_dir = "/home/joking/Projects/Chessrecognition/Data/13_classes"
+data_dir = "/home/ubuntu/data/13_classes"
 base_path = "./"
 
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
