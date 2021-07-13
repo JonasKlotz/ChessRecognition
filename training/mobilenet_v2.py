@@ -1,3 +1,6 @@
+import sys
+# set base path
+sys.path.append("/home/ubuntu/ChessRecognition/")
 
 import logging
 
