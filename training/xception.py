@@ -8,7 +8,8 @@ from training.generic_model import create_model, train_model, generate_generator
 model_name = 'Xception'
 img_shape = 299
 model_path = ""
-data_dir = "/home/joking/Projects/Chessrecognition/Data/7_classes"
+data_dir = "/home/ubuntu/data/13_classes"
+
 base_path = "./"
 
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
