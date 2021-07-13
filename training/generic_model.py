@@ -21,7 +21,6 @@ class_names = ["bishop", "empty", "king", "knight", "pawn", "queen", "rook"]
 def create_model(base_model, trainable=-1, classes=13):
     """
     Creates and compiles model based on given model
-
     :param base_model: base model for transfer learning
     :param trainable: amount of trainable layers
     :return: compiled model

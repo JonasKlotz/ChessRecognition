@@ -3,7 +3,7 @@ import logging
 from keras.applications import InceptionResNetV2
 from keras.applications.inception_resnet_v2 import preprocess_input
 
-from training.generic_model import create_model, save_model, train_model, change_trainable, generate_generators
+from training.generic_model import create_model, train_model, change_trainable, generate_generators
 
 model_name = 'InceptionResNetV2'
 img_shape = 150
@@ -19,7 +19,7 @@ def start_training():
                                    input_shape=(img_shape, img_shape, 3))
     model = create_model(base_model, trainable=1)
 
-    save_model(model, model_name, base_path)
+    # save_model(model, model_name, base_path)
     # on cluster
     # model =  load_compiled_model(model_path)
 

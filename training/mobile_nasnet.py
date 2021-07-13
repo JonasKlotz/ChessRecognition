@@ -3,7 +3,7 @@ import logging
 from keras.applications import NASNetMobile
 from keras.applications.nasnet import preprocess_input
 
-from training.generic_model import create_model, save_model, generate_generators, train_model, change_trainable
+from training.generic_model import create_model, generate_generators, train_model, change_trainable
 
 model_name = 'NASNetMobile'
 img_shape = 224
@@ -20,7 +20,7 @@ def start_training():
 
     model = create_model(base_model, trainable=1, classes=13)
 
-    save_model(model, model_name, base_path)
+    # save_model(model, model_name, base_path)
     # on cluster
     # model =  load_compiled_model(model_path)
 
