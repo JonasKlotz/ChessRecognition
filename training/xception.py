@@ -32,7 +32,7 @@ def start_training():
     train_dataset, validation_dataset, test_dataset = generate_generators(preprocess_input, img_shape)
     train_model(model, train_dataset, validation_dataset, test_dataset, model_name, base_path)
 
-    trainable = int(model.layers / 3)
+    trainable = int(len(model.layers) / 3)
     model = change_trainable(model, trainable=trainable, lr=0.00001)
     train_model(model, train_dataset, validation_dataset, test_dataset, model_name, base_path)
 
