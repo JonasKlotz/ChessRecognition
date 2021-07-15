@@ -16,8 +16,8 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from utility import create_dir
 
 classes = 13
-# data_dir = "/home/ubuntu/data/{}_classes".format(classes)
-data_dir = "/home/joking/Projects/Chessrecognition/Data/{}_classes".format(classes)
+data_dir = "/home/ubuntu/data/{}_classes".format(classes)
+# data_dir = "/home/joking/Projects/Chessrecognition/Data/{}_classes".format(classes)
 
 
 class_names_7 = ["bishop", "empty", "king", "knight", "pawn", "queen", "rook"]
@@ -168,7 +168,7 @@ def train_model(model, train_dataset, validation_dataset, test_dataset, model_na
     time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     print("Finished Training at ", time)
 
-    #evaluate_model(model, test_dataset, parent_dir, history)
+    evaluate_model(model, test_dataset, parent_dir, history)
     time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     print("Finished Evaluation at ", time)
 
