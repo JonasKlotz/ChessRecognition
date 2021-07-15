@@ -5,12 +5,12 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from sklearn.metrics import classification_report, confusion_matrix
 from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping
 from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
 from tensorflow.keras.models import Model
-from tensorflow.keras.optimizers import Adam
-from sklearn.metrics import classification_report, confusion_matrix
 from tensorflow.keras.models import load_model
+from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 from utility import create_dir
@@ -147,7 +147,7 @@ def train_model(model, train_dataset, validation_dataset, test_dataset, model_na
     :param model_name: name of the base model
     :return:
     """
-    EPOCHS = 1
+    EPOCHS = 2
     steps_p_epoch = 2  # train_dataset.samples // train_dataset.batch_size +1
     validation_steps = 2  # validation_dataset.samples // validation_dataset.batch_size +1
 
