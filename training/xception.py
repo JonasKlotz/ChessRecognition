@@ -8,7 +8,7 @@ import logging
 from keras.applications import Xception
 from keras.applications.xception import preprocess_input
 
-from training.generic_model import create_model, train_model, generate_generators, change_trainable
+from training.generic_model import create_model, train_model, generate_generators, change_trainable, save_model
 
 model_name = 'Xception'
 img_shape = 299
@@ -25,7 +25,7 @@ def start_training():
                           weights='imagenet')
     model = create_model(base_model, trainable=1)
 
-    save_model(model, model_name, base_path)
+    # save_model(model, model_name, base_path)
     # on cluster
     # model =  load_compiled_model(model_path)
 
@@ -35,7 +35,8 @@ def start_training():
     trainable = int(len(model.layers) / 3)
     model = change_trainable(model, trainable=trainable, lr=0.00001)
     train_model(model, train_dataset, validation_dataset, test_dataset, model_name, base_path)
-    save_model(model, model_name, base_path)
+
+    save_model(model, "final_" + model_name, base_path)
     print("Done")
 
 if __name__ == '__main__':

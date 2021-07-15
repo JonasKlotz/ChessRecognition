@@ -7,7 +7,7 @@ import logging
 from keras.applications import MobileNetV2
 from keras.applications.mobilenet_v2 import preprocess_input
 
-from training.generic_model import create_model, generate_generators, train_model, change_trainable
+from training.generic_model import create_model, generate_generators, train_model, change_trainable, save_model
 
 model_name = 'MobileNetV2'
 img_shape = 224
@@ -33,6 +33,7 @@ def start_training():
     model = change_trainable(model, trainable=trainable, lr=0.00001)
     train_model(model, train_dataset, validation_dataset, test_dataset, model_name, base_path)
 
-
+    save_model(model, "final_" + model_name, base_path)
+    print("Done")
 if __name__ == '__main__':
     start_training()
