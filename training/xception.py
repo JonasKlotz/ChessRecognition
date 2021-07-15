@@ -13,7 +13,7 @@ from training.generic_model import create_model, train_model, generate_generator
 model_name = 'Xception'
 img_shape = 299
 model_path = ""
-data_dir = "/home/ubuntu/data/13_classes"
+data_dir = "/home/joking/Projects/Chessrecognition/Data/13_classes" # /home/ubuntu/data/13_classes"
 
 base_path = "./"
 
@@ -29,7 +29,7 @@ def start_training():
     # on cluster
     # model =  load_compiled_model(model_path)
 
-    train_dataset, validation_dataset, test_dataset = generate_generators(preprocess_input, img_shape, data_dir)
+    train_dataset, validation_dataset, test_dataset = generate_generators(preprocess_input, img_shape)
     train_model(model, train_dataset, validation_dataset, test_dataset, model_name, base_path)
 
     trainable = int(model.layers / 3)

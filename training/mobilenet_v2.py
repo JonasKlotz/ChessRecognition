@@ -12,7 +12,6 @@ from training.generic_model import create_model, generate_generators, train_mode
 model_name = 'MobileNetV2'
 img_shape = 224
 model_path = ""
-data_dir = "/home/ubuntu/data/13_classes"
 base_path = "./"
 
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
@@ -27,7 +26,7 @@ def start_training():
     # on cluster
     # model =  load_compiled_model(model_path)
 
-    train_dataset, validation_dataset, test_dataset = generate_generators(preprocess_input, img_shape, data_dir)
+    train_dataset, validation_dataset, test_dataset = generate_generators(preprocess_input, img_shape)
     train_model(model, train_dataset, validation_dataset, test_dataset, model_name, base_path)
 
     trainable = int(model.layers / 3)

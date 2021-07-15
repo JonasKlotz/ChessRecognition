@@ -15,10 +15,21 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 from utility import create_dir
 
-class_names = ["bishop", "empty", "king", "knight", "pawn", "queen", "rook"]
+classes = 13
+# data_dir = "/home/ubuntu/data/{}_classes".format(classes)
+data_dir = "/home/joking/Projects/Chessrecognition/Data/{}_classes".format(classes)
 
 
-def create_model(base_model, trainable=-1, classes=13):
+class_names_7 = ["bishop", "empty", "king", "knight", "pawn", "queen", "rook"]
+class_names_13 = ["bb", "bk", "bn", "bp", "bq", "br", "empty", "wb", "wk", "wn", "wp", "wq", "wr"]
+
+if classes == 13:
+    class_names = class_names_13
+else:
+    class_names = class_names_7
+
+
+def create_model(base_model, trainable=-1):
     """
     Creates and compiles model based on given model
     :param base_model: base model for transfer learning
@@ -71,7 +82,7 @@ def save_model(model, model_name, parent_dir):
     print("Model saved to: " + saved_keras_model_filepath)
 
 
-def generate_generators(preprocess_input, img_shape, data_dir):
+def generate_generators(preprocess_input, img_shape):
     """
 
     :param preprocess_input:
@@ -136,9 +147,9 @@ def train_model(model, train_dataset, validation_dataset, test_dataset, model_na
     :param model_name: name of the base model
     :return:
     """
-    EPOCHS = 4
-    steps_p_epoch = 5  # train_dataset.samples // train_dataset.batch_size +1
-    validation_steps = 5  # validation_dataset.samples // validation_dataset.batch_size +1
+    EPOCHS = 1
+    steps_p_epoch = 2  # train_dataset.samples // train_dataset.batch_size +1
+    validation_steps = 2  # validation_dataset.samples // validation_dataset.batch_size +1
 
     time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     print("Start at ", time)
@@ -157,7 +168,7 @@ def train_model(model, train_dataset, validation_dataset, test_dataset, model_na
     time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     print("Finished Training at ", time)
 
-    evaluate_model(model, test_dataset, parent_dir, history)
+    #evaluate_model(model, test_dataset, parent_dir, history)
     time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     print("Finished Evaluation at ", time)
 
@@ -209,6 +220,8 @@ def evaluate_model(model, test_dataset, parent_dir, history):
     cm = confusion_matrix(test_dataset.classes, y_pred)
     cm_path = os.path.join(parent_dir, 'final_cm.jpg')
     figure = plot_confusion_matrix(cm, save_path=cm_path)
+
+    #setup right classnames
 
     print(classification_report(test_dataset.labels, y_pred, target_names=class_names))
 
