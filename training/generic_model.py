@@ -5,10 +5,10 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping
-from keras.layers import Dense, GlobalAveragePooling2D
-from keras.models import Model
-from keras.optimizers import Adam
+from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
+from tensorflow.keras.models import Model
+from tensorflow.keras.optimizers import Adam
 from sklearn.metrics import classification_report, confusion_matrix
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
