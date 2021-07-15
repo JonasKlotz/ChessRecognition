@@ -1,3 +1,7 @@
+import sys
+# set base path
+sys.path.append("/home/ubuntu/ChessRecognition/")
+
 import logging
 
 from keras.applications import InceptionResNetV2
