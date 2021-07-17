@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.metrics import classification_report, confusion_matrix
-from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping
+from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
 from tensorflow.keras.models import Model
 from tensorflow.keras.models import load_model
@@ -16,9 +16,8 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from utility import create_dir
 
 classes = 13
-data_dir = "/home/ubuntu/data/{}_classes".format(classes)
-# data_dir = "/home/joking/Projects/Chessrecognition/Data/{}_classes".format(classes)
-
+# data_dir = "/home/ubuntu/data/{}_classes".format(classes)
+data_dir = "/home/joking/Projects/Chessrecognition/Data/{}_classes".format(classes)
 
 class_names_7 = ["bishop", "empty", "king", "knight", "pawn", "queen", "rook"]
 class_names_13 = ["bb", "bk", "bn", "bp", "bq", "br", "empty", "wb", "wk", "wn", "wp", "wq", "wr"]
@@ -29,13 +28,16 @@ else:
     class_names = class_names_7
 
 
-def create_model(base_model, trainable=-1):
+def create_model(base_model, trainable):
     """
     Creates and compiles model based on given model
     :param base_model: base model for transfer learning
     :param trainable: amount of trainable layers
     :return: compiled model
     """
+    # First train only the top layers
+    for layer in base_model.layers:
+        layer.trainable = False
 
     x = base_model.output
     x = GlobalAveragePooling2D()(x)
@@ -45,11 +47,19 @@ def create_model(base_model, trainable=-1):
     model = Model(inputs=base_model.input, outputs=predictions)
 
     # we will freeze the first trainable layers and unfreeze the rest
-    if trainable > 0:
-        for layer in model.layers[:trainable]:
-            layer.trainable = False
-        for layer in model.layers[trainable:]:
-            layer.trainable = True
+    """    if trainable > 0:
+            print("Setting trains", trainable)
+            for i in range(len(model.layers)):
+                if i < trainable:
+                    model.layers[i].trainable = True
+                else:
+                    model.layers[i].trainable = False
+    """
+
+    change_trainable(model=model, trainable=20, lr=0.01)
+    print()
+    for layer in model.layers:
+        print(layer.name, layer.trainable)
 
     adam = Adam(lr=0.0001)
     model.compile(adam, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
@@ -147,9 +157,9 @@ def train_model(model, train_dataset, validation_dataset, test_dataset, model_na
     :param model_name: name of the base model
     :return:
     """
-    EPOCHS = 2
-    steps_p_epoch = 2  # train_dataset.samples // train_dataset.batch_size +1
-    validation_steps = 2  # validation_dataset.samples // validation_dataset.batch_size +1
+    EPOCHS = 5
+    steps_p_epoch = train_dataset.samples // train_dataset.batch_size + 1
+    validation_steps = validation_dataset.samples // validation_dataset.batch_size + 1
 
     time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     print("Start at ", time)
@@ -157,7 +167,7 @@ def train_model(model, train_dataset, validation_dataset, test_dataset, model_na
     # Setup folder for evaluation process logs etc
     parent_dir = create_dir(base_path, time + "_" + model_name)
 
-    callbacks = generate_callbacks(parent_dir)
+    callbacks = generate_callbacks(parent_dir, 0.1, 10)
     history = model.fit(train_dataset,
                         epochs=EPOCHS,
                         steps_per_epoch=steps_p_epoch,
@@ -173,7 +183,7 @@ def train_model(model, train_dataset, validation_dataset, test_dataset, model_na
     print("Finished Evaluation at ", time)
 
 
-def generate_callbacks(parent_dir):
+def generate_callbacks(parent_dir, reduce_lr_factor, reduce_lr_patience):
     """
     :param reducelr_patience:
     :param reducelr_factor:
@@ -196,13 +206,13 @@ def generate_callbacks(parent_dir):
                      update_freq='epoch',
                      profile_batch=2,
                      embeddings_freq=1),
-    """
+
     reduce_lr = ReduceLROnPlateau(monitor='val_accuracy',
                                   mode='max',
-                                  factor=reducelr_factor,
-                                  patience=reducelr_patience,
+                                  factor=reduce_lr_factor,
+                                  patience=reduce_lr_patience,
                                   verbose=1)
-    """
+
     # return [early_stopping, save_best, tb, LambdaCallback(on_epoch_end=log_confusion_matrix)]
     return [early_stopping, save_best]  # , tb]
 
@@ -287,11 +297,14 @@ def save_history(history, parent_dir):
 
 def change_trainable(model, trainable, lr):
     if trainable > 0:
-        for layer in model.layers[:trainable]:
+        t = len(model.layers) - trainable
+        for layer in model.layers[:t]:
             layer.trainable = False
-        for layer in model.layers[trainable:]:
+        for layer in model.layers[t:]:
             layer.trainable = True
 
     adam = Adam(lr=lr)
     model.compile(adam, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
     return model
+

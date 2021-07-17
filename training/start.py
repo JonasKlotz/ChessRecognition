@@ -1,7 +1,10 @@
-from training import mobile_nasnet, mobilenet_v2, xception, resnet_v2
+from training.mobile_nasnet import start_training as nasnet
+from training.mobilenet_v2 import start_training as mobilenet
+from training.resnet_v2 import start_training as resnet
+from training.xception import start_training as xceptio
 
 if __name__ == '__main__':
-    mobilenet_v2.start_training()
-    mobile_nasnet.start_training()
-    xception.start_training()
-    resnet_v2.start_training()
+    mobilenet()
+    nasnet()
+    xceptio()
+    resnet()
