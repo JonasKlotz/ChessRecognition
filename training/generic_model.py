@@ -46,20 +46,6 @@ def create_model(base_model, trainable):
 
     model = Model(inputs=base_model.input, outputs=predictions)
 
-    # we will freeze the first trainable layers and unfreeze the rest
-    """    if trainable > 0:
-            print("Setting trains", trainable)
-            for i in range(len(model.layers)):
-                if i < trainable:
-                    model.layers[i].trainable = True
-                else:
-                    model.layers[i].trainable = False
-    """
-
-    change_trainable(model=model, trainable=20, lr=0.01)
-    print()
-    for layer in model.layers:
-        print(layer.name, layer.trainable)
 
     adam = Adam(lr=0.0001)
     model.compile(adam, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
