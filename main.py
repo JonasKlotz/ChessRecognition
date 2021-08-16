@@ -1,7 +1,6 @@
 # main.py
 # Import the argparse library
 import argparse
-import logging
 import time
 
 import get_slid
@@ -27,8 +26,6 @@ from keras.applications.inception_resnet_v2 import preprocess_input
 num_of_classes = 7
 img_size = 150
 model_path = '/home/joking/PycharmProjects/Chess_Recognition/models/InceptionResNetV2/model.h5'
-
-logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 
 def process_image(path, save=False):

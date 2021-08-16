@@ -1,3 +1,8 @@
+import sys
+
+# set base path
+sys.path.append("/home/ubuntu/ChessRecognition/")
+
 from training.mobile_nasnet import start_training as nasnet
 from training.mobilenet_v2 import start_training as mobilenet
 from training.resnet_v2 import start_training as resnet

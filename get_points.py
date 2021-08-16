@@ -280,7 +280,11 @@ def four_point_transform(img, points, square_length=1816):
     """
     transforms image warps the perspective so that the 4 points are now the full img
     :param img:
-    :param points:
+    :param points:    points
+    # such that the first entry in the list is the top-left,
+    # the second entry is the top-right, the third is the
+    # bottom-right, and the fourth is the bottom-left
+
     :param square_length:  resulting size of cropped board
     :return:
     """
@@ -368,6 +372,17 @@ def get_points(img=None, img_path=None):
 
     return corners
 
+
+def split_board(img):
+    """
+    Given a board image, returns an array of 64 smaller images.
+    """
+    arr = []
+    sq_len = int(img.shape[0] / 8)
+    for i in range(8):
+        for j in range(8):
+            arr.append(img[i * sq_len: (i + 1) * sq_len, j * sq_len: (j + 1) * sq_len])
+    return arr
 
 
 if __name__ == '__main__':

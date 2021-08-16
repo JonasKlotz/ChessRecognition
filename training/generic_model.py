@@ -19,6 +19,7 @@ classes = 13
 # data_dir = "/home/ubuntu/data/{}_classes".format(classes)
 data_dir = "/home/joking/Projects/Chessrecognition/Data/{}_classes".format(classes)
 
+
 class_names_7 = ["bishop", "empty", "king", "knight", "pawn", "queen", "rook"]
 class_names_13 = ["bb", "bk", "bn", "bp", "bq", "br", "empty", "wb", "wk", "wn", "wp", "wq", "wr"]
 
@@ -202,7 +203,7 @@ def generate_callbacks(parent_dir, reduce_lr_factor, reduce_lr_patience):
     # return [early_stopping, save_best, tb, LambdaCallback(on_epoch_end=log_confusion_matrix)]
     return [early_stopping, save_best]  # , tb]
 
-def evaluate_model(model, test_dataset, parent_dir, history):
+def evaluate_model(model, test_dataset, parent_dir, history=None):
     """
 
     :param model:
@@ -215,13 +216,14 @@ def evaluate_model(model, test_dataset, parent_dir, history):
 
     cm = confusion_matrix(test_dataset.classes, y_pred)
     cm_path = os.path.join(parent_dir, 'final_cm.jpg')
+    print("Save Matrix to ", cm_path)
     figure = plot_confusion_matrix(cm, save_path=cm_path)
 
-    #setup right classnames
+    # setup right classnames
 
     print(classification_report(test_dataset.labels, y_pred, target_names=class_names))
-
-    save_history(history, parent_dir)
+    if history:
+        save_history(history, parent_dir)
 
 
 def get_y_pred(model, test_dataset):
@@ -294,3 +296,6 @@ def change_trainable(model, trainable, lr):
 
     return model
 
+
+if __name__ == '__main__':
+    pass

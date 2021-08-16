@@ -1,6 +1,7 @@
+import numpy as np
+
 from calculate_fen.fen_utility import get_fen_from_array
 from calculate_fen.get_board_colors import get_colors
-from utility import display_fen_board
 
 
 def get_fen_from_predictions(predictions, squares, num_of_classes):
@@ -27,7 +28,23 @@ def get_fen_from_predictions(predictions, squares, num_of_classes):
     fen_array = get_fen_array(predictions, piece_colors, field_colors, empty_fields)
     fen = get_fen_from_array(fen_array)
 
-    print(fen)
-    display_fen_board(fen, save=False)
+    # print(fen)
+    # display_fen_board(fen, save=False)
 
+    return fen
+
+
+def fen_max_prob(predictions, num_of_classes=7):
+    """
+    Always choose piece with maximum probability
+    :return:
+    """
+    board = []
+    fen_gen = ["b", "k", "n", "p", "q", "r", "1", "B", "K", "N", "P", "Q", "R"]
+    for pred in predictions:
+        piece_index = np.argmax(pred)  # which piece is it?
+        piece_name = fen_gen[piece_index]  # namestring in chess notation
+
+        board.append(piece_name)
+    fen = get_fen_from_array(board)
     return fen

@@ -58,10 +58,7 @@ def remove_from_single_index_array(dictionary, piece_name, index):
     :param index: on board
     :return: dict of arrays
     """
-    print(piece_name, "at ", index)
-    print("In ", dictionary[piece_name])
     dictionary[piece_name].remove(index)
-    print()
     return dictionary
 
 
@@ -219,9 +216,6 @@ def get_fen_from_array(fen_array):
     fen = ""
     empty = 0
 
-    print("Fen Array")
-    print(len(fen_array))
-    print(fen_array)
 
     for i in range(len(fen_array) + 1):
         if i == len(fen_array):
@@ -240,10 +234,10 @@ def get_fen_from_array(fen_array):
             empty += 1
 
         elif empty > 0:  # piece found and empty before that
-            fen += str(empty) + fen_array[i]
+            fen += str(empty) + str(fen_array[i])
             empty = 0
         else:  # piece found an piece before that
-            fen += fen_array[i]
+            fen += str(fen_array[i])
 
     fen = fen + " w - - 0 0"
     return fen
