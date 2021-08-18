@@ -22,7 +22,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 classes = 13
 # data_dir = "/home/ubuntu/data/{}_classes".format(classes)
 # data_dir = "/home/joking/Projects/Chessrecognition/Data/{}_classes".format(classes)
-data_dir = "/home/users/j/jonasklotz/TrainingCluster/Data/{}_classes".format(classes)  # hpc cluster
+data_dir = "/home/users/j/jonasklotz/Data/{}_classes".format(classes)  # hpc cluster
 
 class_names_7 = ["bishop", "empty", "king", "knight", "pawn", "queen", "rook"]
 class_names_13 = ["bb", "bk", "bn", "bp", "bq", "br", "empty", "wb", "wk", "wn", "wp", "wq", "wr"]
