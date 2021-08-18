@@ -18,7 +18,6 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-from utility import create_dir
 
 classes = 13
 # data_dir = "/home/ubuntu/data/{}_classes".format(classes)
@@ -300,6 +299,16 @@ def change_trainable(model, trainable, lr):
     model.compile(adam, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
     return model
+
+
+def create_dir(parent_dir, dir_name):
+    path = os.path.join(parent_dir, dir_name)
+    try:
+        os.mkdir(path)
+        print("Directory '%s' created" % path)
+    except:
+        print("Directory  already exists")
+    return path
 
 
 if __name__ == '__main__':
