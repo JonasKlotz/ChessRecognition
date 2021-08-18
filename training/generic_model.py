@@ -1,3 +1,8 @@
+import sys
+
+# set base path
+sys.path.append("/home/users/j/jonasklotz/ChessRecognition")
+
 import datetime
 import itertools
 import os
@@ -17,8 +22,8 @@ from utility import create_dir
 
 classes = 13
 # data_dir = "/home/ubuntu/data/{}_classes".format(classes)
-data_dir = "/home/joking/Projects/Chessrecognition/Data/{}_classes".format(classes)
-
+# data_dir = "/home/joking/Projects/Chessrecognition/Data/{}_classes".format(classes)
+data_dir = "/home/users/j/jonasklotz/TrainingCluster/Data/{}_classes".format(classes)  # hpc cluster
 
 class_names_7 = ["bishop", "empty", "king", "knight", "pawn", "queen", "rook"]
 class_names_13 = ["bb", "bk", "bn", "bp", "bq", "br", "empty", "wb", "wk", "wn", "wp", "wq", "wr"]
@@ -144,7 +149,7 @@ def train_model(model, train_dataset, validation_dataset, test_dataset, model_na
     :param model_name: name of the base model
     :return:
     """
-    EPOCHS = 5
+    EPOCHS = 20
     steps_p_epoch = train_dataset.samples // train_dataset.batch_size + 1
     validation_steps = validation_dataset.samples // validation_dataset.batch_size + 1
 
