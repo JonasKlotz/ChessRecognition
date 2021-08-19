@@ -20,8 +20,8 @@ img_shape = 150
 data_dir = "/home/ubuntu/data/13_classes"
 base_path = "./" """
 
-model_path = "/home/users/j/jonasklotz/TrainingCluster/training/empty/empty_InceptionResNetV2.h5"
-base_path = "/home/users/j/jonasklotz/TrainingCluster/training"
+model_path = "/home/users/j/jonasklotz/TrainingCluster/training/empty/13_empty_InceptionResNetV2.h5"
+base_path = "/home/users/j/jonasklotz/TrainingCluster/training/results"
 
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
 

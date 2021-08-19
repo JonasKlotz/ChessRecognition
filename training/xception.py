@@ -15,8 +15,8 @@ img_shape = 299
 """model_path = ""
 base_path = "./" """
 
-model_path = "/home/users/j/jonasklotz/TrainingCluster/empty/training/empty_Xception.h5"
-base_path = "/home/users/j/jonasklotz/TrainingCluster/training"
+model_path = "/home/users/j/jonasklotz/TrainingCluster/empty/training/13_empty_Xception.h5"
+base_path = "/home/users/j/jonasklotz/TrainingCluster/training/results"
 
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
