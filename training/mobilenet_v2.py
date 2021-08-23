@@ -15,7 +15,7 @@ img_shape = 224
 """model_path = ""
 base_path = "./" """
 
-model_path = "/home/users/j/jonasklotz/TrainingCluster/training/empty/13_empty_MobileNetV2.h5"
+model_path = "/home/users/j/jonasklotz/TrainingCluster/training/empty/empty_MobileNetV2.h5"
 base_path = "/home/users/j/jonasklotz/TrainingCluster/training/results"
 
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
