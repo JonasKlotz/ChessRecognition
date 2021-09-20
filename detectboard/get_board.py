@@ -1,4 +1,5 @@
 import logging
+from collections import Counter
 from collections import defaultdict
 from copy import copy
 
@@ -7,6 +8,7 @@ import numpy as np
 import scipy.cluster as clstr
 import scipy.spatial as spatial
 from scipy.spatial import ConvexHull
+from sklearn.cluster import DBSCAN
 
 import debug
 
@@ -92,10 +94,6 @@ def det_intervall(angle, centroid):
         return 5
 
 
-from sklearn.cluster import DBSCAN
-from collections import Counter
-
-
 def find_peak_angles(lines):
     """ finds two peak angles by finding biggest sum of orthogonal lines
     @:return: 2 lists containing the horizontal and vertical lines
@@ -105,7 +103,7 @@ def find_peak_angles(lines):
     line_array = [[] for _ in range(6)]
     angle_array = []
     angle_array = np.zeros(len(lines))
-    # create arrax containing all angles in grad
+    # create array containing all angles in grad
     for i in range(len(lines)):
         distance, angle = lines[i]
         angle_array[i] = angle * (180 / np.pi)
@@ -134,8 +132,8 @@ def find_peak_angles(lines):
         line_array[angle_index].append((distance, angle))  # append line to line array
 
     # print(len(line_array[angle_index]))
-    equi_angle = int(
-        len(line_array) / 2)  # eg index 0 and 0 + equi_angle are orthogonal to each other -> see function above
+    equi_angle = int(len(line_array) / 2)  # eg index 0 and 0 + equi_angle are orthogonal to each other \
+    # -> see function above
     # print("equi_angle = ", equi_angle)
 
     # count list contains number of lines in the two orthogonal angles
@@ -358,7 +356,6 @@ def get_points(img=None, img_path=None):
     # combine cluster
     # test = combine_points2(all_points, img)
 
-
     points = cluster(all_points)
 
     debug.DebugImage(img) \
@@ -371,18 +368,6 @@ def get_points(img=None, img_path=None):
         .save("get_points_final_corners")
 
     return corners
-
-
-def split_board(img):
-    """
-    Given a board image, returns an array of 64 smaller images.
-    """
-    arr = []
-    sq_len = int(img.shape[0] / 8)
-    for i in range(8):
-        for j in range(8):
-            arr.append(img[i * sq_len: (i + 1) * sq_len, j * sq_len: (j + 1) * sq_len])
-    return arr
 
 
 if __name__ == '__main__':

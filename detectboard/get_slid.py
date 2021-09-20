@@ -30,9 +30,7 @@ def get_board_slid(board_path):
     head, tail = os.path.split(board_path)
     tmp_dir = os.path.join(head, "tmp/")
     cropped = cv2.imread(tmp_dir + tail)
-
-    squares = split_board(cropped)
-    return squares, cropped, corners
+    return cropped, corners
 
 
 def pgn_to_fen_list(png_path):
@@ -66,7 +64,7 @@ if __name__ == '__main__':
     img = cv2.imread(input_path, 1)
     print("Loading board from ", input_path)
 
-    squares, cropped, corners = get_board_slid(input_path)
+    cropped, corners = get_board_slid(input_path)
 
     print(corners)
     debug.DebugImage(cropped) \
