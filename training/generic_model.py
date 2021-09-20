@@ -18,7 +18,6 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-
 classes = 7
 # data_dir = "/home/ubuntu/data/{}_classes".format(classes)
 # data_dir = "/home/joking/Projects/Chessrecognition/Data/{}_classes".format(classes)
@@ -50,7 +49,6 @@ def create_model(base_model, trainable):
     predictions = Dense(classes, activation='softmax')(x)  # 7 classes for no color detection
 
     model = Model(inputs=base_model.input, outputs=predictions)
-
 
     adam = Adam(lr=0.0001)
     model.compile(adam, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
@@ -88,7 +86,6 @@ def generate_generators(preprocess_input, img_shape):
 
     :param preprocess_input:
     :param img_shape:
-    :param data_dir:
     :return: all 3 datasets
     """
 
@@ -176,11 +173,12 @@ def train_model(model, train_dataset, validation_dataset, test_dataset, model_na
 
 def generate_callbacks(parent_dir, reduce_lr_factor, reduce_lr_patience):
     """
-    :param reducelr_patience:
-    :param reducelr_factor:
-    :param parent_dir: location to save
+    :param parent_dir:  location to save
+    :param reduce_lr_factor:
+    :param reduce_lr_patience:
     :return: list containing callbacks
     """
+
     best_save_string = os.path.join(parent_dir, 'model.h5')
     log_folder = os.path.join(parent_dir, 'logs/fit')  # parent_dir + "/logs/fit/"
 
@@ -206,6 +204,7 @@ def generate_callbacks(parent_dir, reduce_lr_factor, reduce_lr_patience):
 
     # return [early_stopping, save_best, tb, LambdaCallback(on_epoch_end=log_confusion_matrix)]
     return [early_stopping, save_best]  # , tb]
+
 
 def evaluate_model(model, test_dataset, parent_dir, history=None):
     """

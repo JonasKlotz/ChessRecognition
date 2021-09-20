@@ -10,17 +10,12 @@ import utility
 labels = ["bishop", "empty", "king", "knight", "pawn", "queen", "rook"]
 pieces = ["b", "empty", "k", "n", "p", "q", "r"]
 
-fen_real = "r1b5/pp3p1p/4kQp1/2pNN3/2PnP3/6P1/PP4qP/3RK2R"  # r1b5/pp3p1p/4kQp1/2pNN3/2PnP3/6P1/PP4qP/3RK2R w - - 0 1
-
 import logging
 
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
 
 
 # ## Creating ImageDataGenerators
-
-
-
 
 
 # ## Load Model

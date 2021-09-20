@@ -1,4 +1,5 @@
 import sys
+
 # set base path
 sys.path.append("/home/users/j/jonasklotz/ChessRecognition")
 
