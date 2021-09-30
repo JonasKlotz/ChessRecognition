@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def find_field_colour(img, show=False):
+def find_field_colour(img, show=False, i=0):
     """ input field output color
     1 is white 0 is black
     @:returns 1 if field is white, 0 if black
@@ -24,7 +24,7 @@ def find_field_colour(img, show=False):
     if show:
         fig = plt.figure(figsize=(3, 3))
         plt.imshow(img)
-        plt.show()
+        plt.imsave(f"data/{i}.jpg", img)
 
     n_white_pix = cv2.countNonZero(img_binary)
     n_black_pix = rows * cols - n_white_pix
@@ -37,28 +37,30 @@ def find_field_colour(img, show=False):
 def compare_board(board_to_compare):
     """
     compares board to the 2 possible boards
-    @:returns board color array
+    @:returns board color array, true or false(if has to be turned or not
     """
     board_1 = [0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0,
                1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0]
     board_2 = [1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1,
                0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1]
 
+    # Im Falle Board 2 muss das brett zusätzlich gedreht werden!!!
+
     if np.sum(board_to_compare == board_1) > np.sum(board_to_compare == board_2):
-        return board_1
-    return board_2
+        return board_1, True
+    return board_2, False
 
 
 def find_board_colour(square_list):
     """
     gets quares as input
     collects their color
-    @:returns board color array
+    @:returns board color array, True or false for turning of board
     """
     board_color = np.zeros(len(square_list), dtype=int)  # für jedes square eine liste
     i = 0
     for i in range(len(square_list)):
-        board_color[i] = find_field_colour(square_list[i])
+        board_color[i] = find_field_colour(square_list[i], i=i)
     return compare_board(board_color)
 
 
@@ -108,8 +110,46 @@ def get_colors(square_list, empty_fields):
     main function to get Colors
     :param square_list:
     :param empty_fields:
+    :return: board_color, piece_colors, turn(bool) if has to be turned
+    """
+    board_color, turn = find_board_colour(square_list)
+
+    piece_colors = get_piece_colors(square_list, board_color, empty_fields)
+    return board_color, piece_colors, turn
+
+
+#
+
+
+def rotate_board(board):
+    """
+    :todo unbedingt verschönern
+    :param board: chessboard list
     :return:
     """
-    board_color = find_board_colour(square_list)
-    piece_colors = get_piece_colors(square_list, board_color, empty_fields)
-    return board_color, piece_colors
+    rotation_list = [56, 48, 40, 32, 24, 16, 8, 0,
+                     57, 49, 41, 33, 25, 17, 9, 1,
+                     58, 50, 42, 34, 26, 18, 10, 2,
+                     59, 51, 43, 35, 27, 19, 11, 3,
+                     60, 52, 44, 36, 28, 20, 12, 4,
+                     61, 53, 45, 37, 29, 21, 13, 5,
+                     62, 54, 46, 38, 30, 22, 14, 6,
+                     63, 55, 47, 39, 31, 23, 15, 7]
+    result = []
+    for i in range(64):
+        result.append(board[rotation_list[i]])
+    return result
+
+    """
+    if isinstance(board, list):
+        print("LIST")
+        matrix = np.asarray(board).reshape((8, 8))
+        matrix = np.rot90(matrix, 3)
+        return matrix.reshape(64, ).tolist()
+
+    elif isinstance(board, np.ndarray):
+        print("NP ARRAY")
+        print(board.shape)
+        #matrix = np.asarray(board).reshape((8, 8))
+        matrix = np.rot90(board, 3)
+        return matrix#.reshape(64, )"""

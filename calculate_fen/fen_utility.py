@@ -216,7 +216,6 @@ def get_fen_from_array(fen_array):
     fen = ""
     empty = 0
 
-
     for i in range(len(fen_array) + 1):
         if i == len(fen_array):
             if empty != 0:  # if last field and still empties
