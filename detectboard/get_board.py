@@ -152,7 +152,7 @@ def find_peak_angles(lines):
 def intersections(h, v, dims):
     """
     Given lists of horizontal and vertical lines in (rho, theta) form, returns list
-    of (x, y) intersection points.
+    of (x, labels) intersection points.
     """
     height, width = dims
     points = []
@@ -166,6 +166,15 @@ def intersections(h, v, dims):
                 points.append(point)
 
     return np.array(points)
+
+
+def get_clusters_db(points, labels):
+    """ Helper Function to cluster results from DBSCAN
+    :param points: Set of points
+    :param labels: Labels for given Points
+    :return: outliers(DBSCAN results in -1), list of np.array clusters
+    """
+    return points[np.where(labels == -1)], [points[np.where(labels == i)] for i in range(np.amax(labels) + 1)]
 
 
 def cluster(points, max_dist=80):
@@ -355,8 +364,22 @@ def get_points(img=None, img_path=None):
             continue
     # combine cluster
     # test = combine_points2(all_points, img)
+    debug.DebugImage(img) \
+        .points(all_points, color=(0, 255, 255), size=8) \
+        .save("get_points_all_points")
 
-    points = cluster(all_points)
+    # eps muss kleiner sein als feldlänge
+    clustering = DBSCAN(eps=80, min_samples=2).fit(all_points)
+    labels = clustering.labels_
+    outliers, clusters = get_clusters_db(all_points, labels)
+
+    d = debug.DebugImage(img)
+    for i in range(len(clusters)):  # why +1??
+        d.points(clusters[i], color=(0, 255, 0), size=10)
+    d.points(outliers, color=(0, 0, 255), size=10)
+    d.save("clusters_with_outliers")
+
+    points = cluster(np.concatenate(clusters))
 
     debug.DebugImage(img) \
         .points(points, color=(0, 0, 255), size=10) \
@@ -388,8 +411,8 @@ if __name__ == '__main__':
 
     # print(vars(args))
     """
-    for i in range(22, 23):
-        input_path = "/home/joking/Projects/Chessrecognition/Data/chessboards/board_recog_2/{}.jpg".format(i)
+    for i in range(31, 32):
+        input_path = "/home/joking/Projects/Chessrecognition/Data/chessboards/board_recog/{}.jpg".format(i)
         print("Loading board from ", input_path)
 
         img = cv2.imread(input_path, 1)
@@ -399,5 +422,4 @@ if __name__ == '__main__':
         debug.DebugImage(img) \
             .points(corners, color=(0, 0, 255)) \
             .save("get_points_main_corners")
-
     # squares, board_img, corners = get_slid.get_board_slid(input_path)

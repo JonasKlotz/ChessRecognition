@@ -101,7 +101,7 @@ def get_piece_colors(square_list, board_color, empty_fields):
                     piece_colors[i] = 'w'
                 else:
                     piece_colors[i] = 'b'
-
+    print(piece_colors[35])
     return piece_colors
 
 

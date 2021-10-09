@@ -1,9 +1,12 @@
 import os
+import sys
 from time import time
 
 import cv2
 import numpy as np
 from flask import Flask, request, jsonify
+
+from main import process_image
 
 """ ROUTES """
 app = Flask(__name__)
@@ -27,6 +30,7 @@ def allowed_file(filename):
 def upload_file():
     if request.method == 'POST':
         file = request.files['file']
+        fen = ""
         if file and allowed_file(file.filename):
             start = time()
             img = np.asarray(bytearray(file.read()))
@@ -34,10 +38,11 @@ def upload_file():
             cv2.imwrite(tmp_path, img)
             print("Wrote image to ", tmp_path)
             try:
-                # fen = process_image(tmp_path,)
+                fen = process_image(tmp_path)
                 print("Success")
             except:
                 print("ERROR no fen found")
+                print("Unexpected error:", sys.exc_info()[0])
         json = {'fen': fen, 'time': time() - start}
         return jsonify(json)
     return '''

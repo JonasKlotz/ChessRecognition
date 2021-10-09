@@ -9,15 +9,15 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 
-import get_points
+from detectboard import get_board
 
-DEBUG = True  # Enable or disable debug images
+DEBUG = False  # Enable or disable debug images
 COUNTER = itertools.count()
-DEBUG_SAVE_DIR = "debug/"
+DEBUG_SAVE_DIR = "/home/joking/PycharmProjects/Chess_Recognition/debug/"
 
 
 def reset_counter():
-    """ Resetounter"""
+    """ Reset Counter"""
     global COUNTER
     COUNTER = itertools.count()
 
@@ -68,7 +68,7 @@ class DebugImage:
             plot_lines = [0] * len(angles)
 
             for _, angle in lines:
-                i = get_points.det_intervall(angle, 0)
+                i = get_board.det_intervall(angle, 0)
                 plot_lines[i] += 1
 
             # plt.figure(figsize=(12, 7))

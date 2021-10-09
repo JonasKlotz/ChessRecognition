@@ -175,6 +175,8 @@ loads squares from a directory
 @:arg path of dir
 returns images in tensors and img (150, 150)
 """
+
+
 def load_square_lists_from_dir(dir_path):
     addrs = glob.glob(dir_path + "/*.jpg")
     addrs = natsorted(addrs)

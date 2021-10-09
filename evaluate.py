@@ -12,13 +12,12 @@ from keras.applications.mobilenet_v2 import preprocess_input as mobilenet_input
 from keras.applications.nasnet import preprocess_input as nasnet_input
 from keras.applications.xception import preprocess_input as xception_input
 
-import get_points
 import model
-import utility
-from calculate_fen.get_fen import fen_max_prob
-from get_slid import get_board_slid
-
+from calculate_fen.get_fen import get_fen_from_predictions
+from detectboard import get_board
+from detectboard.get_slid import get_board_slid
 # from training.generic_model import get_y_pred, generate_generators, evaluate_model
+from process_board import process_board
 
 res_dir = "/home/joking/Projects/Chessrecognition/Data/Results/Board Recognition/trash/"
 images_path = "/home/joking/Projects/Chessrecognition/Data/Results/pieces/cropped/"
@@ -58,7 +57,7 @@ def evaluate_board(index, path):
     try:
         # Evaluate GETPOINTS
         start_time = time.time()
-        corners2 = get_points.get_points(img=img)
+        corners2 = get_board.get_points(img=img)
         elapsed_time_points = time.time() - start_time
         print("Processing GETPOINTS took ", elapsed_time_points, "seconds...")
         draw_and_save(index, img, corners2, res_dir, slid=False)
@@ -112,6 +111,32 @@ def read_fen_file(path="string.fen"):
     return results
 
 
+def convert_fen_to_array(fen):
+    """
+
+    :param fen: FEN in string format
+    :return: FEN in FEN array format
+    """
+    fen = fen.replace('/', "").replace('\n', "")  # [::-1]
+
+    # convert FEN to Array
+    fen_array = [] * 64
+    fen = [char for char in fen]  # splot string into chars
+    i = 0
+    while fen:
+        elem = fen.pop(0)
+        if elem.isdigit():
+            empty = int(elem)
+            while empty > 0:
+                fen_array.append('1')
+                empty -= 1
+
+        else:
+            fen_array.append(elem)
+        i += 1
+    return fen_array
+
+
 def read_images(path, n):
     results = []
     for i in range(n):
@@ -130,7 +155,7 @@ def load_models():
               "Xception": [None, xception_input, 299],
               }
     for model_name in model_names:
-        model_path = '/home/joking/PycharmProjects/Chess_Recognition/models/{}_classes/{}/model.h5' \
+        model_path = '/home/joking/PycharmProjects/Chess_Recognition/models/{}_classes/new/{}/model.h5' \
             .format(num_of_classes, model_name)
         models[model_name][0] = model.load_compiled_model(model_path)
 
@@ -146,9 +171,12 @@ def eval_pieces():
     for key in model_names:
         data["{}_pred".format(key)] = []
         data["{}_time".format(key)] = []
+        data["{}_acc".format(key)] = []
 
     # read fen File for true FEN String
-    data["True"] = read_fen_file(fens_path)
+    results = read_fen_file(fens_path)
+    data["True"] = results
+    results_array = list(map(convert_fen_to_array, results))
 
     # Load all models
     models = load_models()
@@ -159,25 +187,35 @@ def eval_pieces():
     images = read_images(images_path, n)
     # for every image
     for i in range(n):
-        # load squares
-        squares = get_points.split_board(images[i])
+
         # evaluate with every model
         for model_name in model_names:
             # start preprocessing
             preprocess_fct = models[model_name][1]
             img_size = models[model_name][2]
-            tensor_list = utility.load_tensor_list_from_squares(squares, img_size, preprocess_fct)
+            reloaded_model = models[model_name][0]
 
             # evaluate
             start_time = time.process_time()
-            predictions = model.get_predictions(models[model_name][0], tensor_list)
-            fen = fen_max_prob(predictions)
-            # fen = get_fen_from_predictions(predictions, squares, num_of_classes=num_of_classes)
+            predictions, squares = process_board(images[i], reloaded_model, img_size, preprocess_fct)
+
+            # fen = fen_max_prob(predictions)
+            fen = get_fen_from_predictions(predictions, squares, num_of_classes=num_of_classes)
             fen = fen.replace(" w - - 0 0", "")
+
             elapsed_time = time.process_time() - start_time
+
+            # calculate accuracy
+            true = np.array(results_array[i])
+            Y = convert_fen_to_array(fen)
+            acc = np.count_nonzero(true == Y) / 64
+            print("accuracy is: ", acc, " for model ", model_name)
+
             # save result
             data["{}_pred".format(model_name)].append(fen)
             data["{}_time".format(model_name)].append(elapsed_time)
+            data["{}_acc".format(model_name)].append(acc)
+
         print(i, " Done")
     print(data)
     pd.DataFrame(data).to_csv("pieces_data.csv", index=False)
@@ -205,15 +243,22 @@ def eval_pieces_testset():
 """
 
 if __name__ == '__main__':
-    modelx = load_models()["InceptionResNetV2"]
-
-    img = cv2.imread("/home/joking/PycharmProjects/Chess_Recognition/tmp/59.jpg")
-    squares = [img]
-    reloaded_model = modelx[0]
-    preprocess_fct = modelx[1]
-    img_size = modelx[2]
-    tensor_list = utility.load_tensor_list_from_squares(squares, img_size, preprocess_fct)
-
-    predictions = model.get_predictions(reloaded_model, tensor_list)
-    np.set_printoptions(suppress=True)
-    print(predictions)
+    # eval_pieces()
+    """    modelx = load_models()["InceptionResNetV2"]
+    
+        img = cv2.imread("/home/joking/PycharmProjects/Chess_Recognition/tmp/59.jpg")
+        squares = [img]
+        reloaded_model = modelx[0]
+        preprocess_fct = modelx[1]
+        img_size = modelx[2]
+        tensor_list = utility.load_tensor_list_from_squares(squares, img_size, preprocess_fct)
+    
+        predictions = model.get_predictions(reloaded_model, tensor_list)
+        np.set_printoptions(suppress=True)
+        print(predictions)"""
+    models = load_models()
+    print("Loaded")
+    for model_name in model_names:
+        model = models[model_name][0]
+        print(model.summary())
+        print()
