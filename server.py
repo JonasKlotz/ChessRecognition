@@ -13,9 +13,6 @@ app = Flask(__name__)
 fen = ""
 
 
-@app.route('/')
-def hello():
-    return 'Chess ID. usage: /upload'
 
 
 ALLOWED_EXTENSIONS = set(['jpg', 'jpeg', 'JPG', 'JPEG'])
@@ -26,7 +23,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
-@app.route('/upload', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         file = request.files['file']
@@ -57,4 +54,4 @@ def upload_file():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=False)
+    app.run(host='0.0.0.0', debug=False, threaded=True, port=5000)

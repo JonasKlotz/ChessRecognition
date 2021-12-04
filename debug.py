@@ -11,7 +11,7 @@ import numpy as np
 
 from detectboard import get_board
 
-DEBUG = False  # Enable or disable debug images
+DEBUG = True  # Enable or disable debug images
 COUNTER = itertools.count()
 DEBUG_SAVE_DIR = "/home/joking/PycharmProjects/Chess_Recognition/debug/"
 

@@ -2,7 +2,7 @@
 # Import the argparse library
 import argparse
 import time
-
+import logging
 # do some stuff
 import model
 from calculate_fen.get_fen import get_fen_from_predictions
@@ -35,11 +35,13 @@ def process_image(path, save=False):
     # cropped = get_board.get_board(path, show=False)
     # squares, board_img = get_board.get_squares(cropped, show=False)  #
     # print("Anzahl gefundene Squares ", len(squares))
-
+    logging.warning("Starting")
     board_img, corners = get_slid.get_board_slid(path)
 
     start_time = time.process_time()
+    logging.warning("load Model")
     reloaded_model = model.load_compiled_model(model_path)
+    logging.warning("process board")
     predictions, squares = process_board(board_img, reloaded_model, img_size, preprocess_input)
     elapsed_time = time.process_time() - start_time
     print("Model took ", elapsed_time, "seconds...")

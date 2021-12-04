@@ -101,7 +101,7 @@ def find_peak_angles(lines):
     # 0/180&90, 30&120, 60&150
     # how many intervals?
     line_array = [[] for _ in range(6)]
-    angle_array = []
+
     angle_array = np.zeros(len(lines))
     # create array containing all angles in grad
     for i in range(len(lines)):
@@ -285,7 +285,7 @@ def get_corners(points):
 
 def four_point_transform(img, points, square_length=1816):
     """
-    transforms image warps the perspective so that the 4 points are now the full img
+    transforms image, warps the perspective so that the 4 points are now the full img
     :param img:
     :param points:    points
     # such that the first entry in the list is the top-left,
@@ -411,7 +411,7 @@ if __name__ == '__main__':
 
     # print(vars(args))
     """
-    for i in range(31, 32):
+    for i in range(29, 31):
         input_path = "/home/joking/Projects/Chessrecognition/Data/chessboards/board_recog/{}.jpg".format(i)
         print("Loading board from ", input_path)
 

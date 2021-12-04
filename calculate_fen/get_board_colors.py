@@ -58,7 +58,7 @@ def find_board_colour(square_list):
     @:returns board color array, True or false for turning of board
     """
     board_color = np.zeros(len(square_list), dtype=int)  # für jedes square eine liste
-    i = 0
+
     for i in range(len(square_list)):
         board_color[i] = find_field_colour(square_list[i], i=i)
     return compare_board(board_color)
