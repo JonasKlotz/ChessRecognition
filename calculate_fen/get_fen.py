@@ -15,10 +15,12 @@ def get_fen_from_predictions(predictions, squares, num_of_classes):
 
     if num_of_classes == 7:
         from calculate_fen.get_fen_7_classes import collect_emtpy_squares, get_fen_array
+        empty_fields = collect_emtpy_squares(predictions, 1)
+
     else:
         from calculate_fen.get_fen_13_classes import collect_emtpy_squares, get_fen_array
+        empty_fields = collect_emtpy_squares(predictions, 6)
 
-    empty_fields = collect_emtpy_squares(predictions)
     field_colors, piece_colors, turn = get_colors(squares, empty_fields)
 
     # wenn unteres linkes Feld nicht weiß ist, muss das brett gedreht werden
@@ -27,9 +29,10 @@ def get_fen_from_predictions(predictions, squares, num_of_classes):
         piece_colors = rotate_board(piece_colors)
         squares = rotate_board(squares)
         predictions = np.asarray(rotate_board(predictions))
+        print("Board is turned")
 
-    # dazu finden was unteres rechtes feld ist, funktion für "drehen"
     fen_array = get_fen_array(predictions, piece_colors, field_colors, empty_fields)
+
     fen = get_fen_from_array(fen_array)
 
     # display_fen_board(fen, save=False)

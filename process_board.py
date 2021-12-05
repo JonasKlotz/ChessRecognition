@@ -28,7 +28,7 @@ def double_split_board(img):
     """
     squares = []
     squares.append(split_board_scaling(img))
-    squares.append(split_board_scaling(img, scaling_factor=0.3))
+    squares.append(split_board_scaling(img, scaling_factor=0.2))
     return squares
 
 
@@ -61,7 +61,25 @@ def process_board(board_img, reloaded_model, img_size, preprocess_input):
         # get Predictions
         predictions = model.get_predictions(reloaded_model, tensor_list)
         preds_list.append(predictions)
+        # utility.fill_dir_with_squares("/tmp", squares)
 
     predictions = merge_predictions(preds_list)
-
     return predictions, squares_list[0]
+
+
+def process_board_no_scaling(board_img, reloaded_model, img_size, preprocess_input):
+    """
+    no sliding window, only squares in corners are evaluated.
+    :param board_img:
+    :param reloaded_model:
+    :param img_size:
+    :param preprocess_input:
+    :return:
+    """
+    squares = split_board_scaling(board_img)
+
+    tensor_list = utility.load_tensor_list_from_squares(squares, img_size, preprocess_input)
+    # get Predictions
+    predictions = model.get_predictions(reloaded_model, tensor_list)
+    # utility.fill_dir_with_squares("/home/joking/PycharmProjects/Chess_Recognition/tmp", squares)
+    return predictions, squares

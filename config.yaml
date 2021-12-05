@@ -1,7 +1,7 @@
 ---
 # comments
 
-num_of_classes: 13
+num_of_classes: 7
 
 model_path: ''
 model_directory: '/home/joking/PycharmProjects/Chess_Recognition/models/'
@@ -27,5 +27,5 @@ InceptionResNetV2:
 
 Xception:
   model_name: 'Xception'
-  img_shape: 299
+  img_size: 299
 

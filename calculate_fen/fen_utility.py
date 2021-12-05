@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def collect_emtpy_squares(predictions, empty_index=1):
+def collect_emtpy_squares(predictions, empty_index=6):
     """
     used to evaluate piece color
     takes fields where highest probability is that it is empty
@@ -169,10 +169,8 @@ def find_remaining(board, remaining_fields, used_pieces, index_array, field_colo
         field_color = field_colors[field_index]  # what color is the field
 
         piece = get_piece_fen(piece_name, piece_colors, field_index)
-
         # if on board
         if check_new_piece_found(piece, field_color, used_pieces):
-
             # add piece to board
             board[field_index] = piece
             # remove index from index array all arrays

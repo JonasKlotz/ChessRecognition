@@ -15,7 +15,7 @@ img_shape = 224
 """model_path = ""
 base_path = "./" """
 
-model_path = "/home/users/j/jonasklotz/TrainingCluster/training/empty/empty_MobileNetV2.h5"
+model_path = "/home/users/j/jonasklotz/TrainingCluster/training/empty/13_empty_MobileNetV2.h5"
 base_path = "/home/users/j/jonasklotz/TrainingCluster/training/results"
 
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
@@ -29,17 +29,17 @@ def start_training():
     # save_model(model, model_name, base_path)
     # on cluster
     model = load_compiled_model(model_path)
-    model = change_trainable(model, trainable=1, lr=0.0001)
+    model = change_trainable(model, trainable=1, lr=0.001)
 
     train_dataset, validation_dataset, test_dataset = generate_generators(preprocess_input, img_shape)
     train_model(model, train_dataset, validation_dataset, test_dataset, model_name, base_path)
 
     trainable = int(len(model.layers) / 3)
-    model = change_trainable(model, trainable=trainable, lr=0.00001)
+    model = change_trainable(model, trainable=trainable, lr=0.0001)
 
     train_model(model, train_dataset, validation_dataset, test_dataset, model_name, base_path)
 
-    model = change_trainable(model, trainable=len(model.layers), lr=0.00001)
+    model = change_trainable(model, trainable=len(model.layers), lr=0.0001)
     train_model(model, train_dataset, validation_dataset, test_dataset, model_name, base_path)
 
     save_model(model, "final_" + model_name, base_path)

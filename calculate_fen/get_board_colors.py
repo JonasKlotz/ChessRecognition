@@ -124,9 +124,6 @@ def get_colors(square_list, empty_fields):
     return board_color, piece_colors, turn
 
 
-#
-
-
 def rotate_board(board):
     """
     manually rotation of a board array
