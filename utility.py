@@ -309,13 +309,6 @@ class configurator:
     def get_model_preprocess(self):
         return self.model_config["preprocess_input"]
 
-    def parse_config(self, config_path):
-        with open(config_path, "r") as stream:
-            try:
-                return yaml.safe_load(stream)
-            except yaml.YAMLError as exc:
-                RuntimeError("No Config File, ", exc)
-
 
 if __name__ == '__main__':
     pass
