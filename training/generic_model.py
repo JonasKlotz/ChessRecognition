@@ -18,7 +18,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-classes = 7
+classes = 13
 # data_dir = "/home/ubuntu/data/{}_classes".format(classes) # aws
 # data_dir = "/home/joking/Projects/Chessrecognition/Data/{}_classes".format(classes)
 data_dir = "/home/users/j/jonasklotz/Data/{}_classes".format(classes)  # hpc cluster
@@ -145,7 +145,7 @@ def train_model(model, train_dataset, validation_dataset, test_dataset, model_na
     :param model_name: name of the base model
     :return:
     """
-    EPOCHS = 20
+    EPOCHS = 30
     steps_p_epoch = train_dataset.samples // train_dataset.batch_size + 1
     validation_steps = validation_dataset.samples // validation_dataset.batch_size + 1
 
@@ -182,10 +182,10 @@ def generate_callbacks(parent_dir, reduce_lr_factor, reduce_lr_patience):
     best_save_string = os.path.join(parent_dir, 'model.h5')
     log_folder = os.path.join(parent_dir, 'logs/fit')  # parent_dir + "/logs/fit/"
 
-    early_stopping = EarlyStopping(monitor='val_loss', patience=5)
+    early_stopping = EarlyStopping(monitor='val_accuracy', patience=5)
 
     save_best = ModelCheckpoint(best_save_string,
-                                monitor='val_loss',
+                                monitor='val_accuracy',
                                 save_best_only=True)
 
     tb = TensorBoard(log_dir=log_folder,
@@ -203,7 +203,7 @@ def generate_callbacks(parent_dir, reduce_lr_factor, reduce_lr_patience):
                                   verbose=1)
 
     # return [early_stopping, save_best, tb, LambdaCallback(on_epoch_end=log_confusion_matrix)]
-    return [early_stopping, save_best]  # , tb]
+    return [early_stopping, save_best, reduce_lr]  # , tb]
 
 
 def evaluate_model(model, test_dataset, parent_dir, history=None):
