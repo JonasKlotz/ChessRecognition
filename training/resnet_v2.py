@@ -6,7 +6,6 @@ sys.path.append("/home/users/j/jonasklotz/ChessRecognition")
 
 
 # set base path
-from tensorflow.python.keras.applications.inception_resnet_v2 import InceptionResNetV2
 
 sys.path.append("/home/users/j/jonasklotz/ChessRecognition")
 

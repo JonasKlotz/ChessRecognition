@@ -1,25 +1,31 @@
 ---
 # comments
-mobile_net_13:
-  name: "Mobile Net V2"
-  preprocess: "from keras.applications.mobilenet_v2 import preprocess_input"
-  num_of_classes: 13
+
+num_of_classes: 13
+
+model_path: ''
+model_directory: '/home/joking/PycharmProjects/Chess_Recognition/models/'
+
+
+
+data_directory: '/home/joking/PycharmProjects/Chess_Recognition/testing_images'
+result_directory: '/home/joking/PycharmProjects/Chess_Recognition/'
+
+default: InceptionResnetV2
+
+MobileNetV2:
+  model_name: "MobileNetV2"
   img_size: 224
-  model_path: '/home/joking/PycharmProjects/Chess_Recognition/models/13_class_MobileNetV2/model.h5'
 
+NASNetMobile:
+  model_name: 'NASNetMobile'
+  img_size: 224
 
-resnet_7:
-  name: 'Inception Resnet V2'
-  preprocess: 'from keras.applications.inception_resnet_v2 import preprocess_input'
-  num_classes: 7
+InceptionResNetV2:
+  model_name: 'InceptionResNetV2'
   img_size: 150
-  model_path: '/home/joking/PycharmProjects/Chess_Recognition/models/InceptionResNetV2/model.h5'
 
-
-resnet_13:
-  name:
-  preprocess:
-  num_classes:
-  img_size:
-  model_path:
+Xception:
+  model_name: 'Xception'
+  img_shape: 299
 

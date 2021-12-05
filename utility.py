@@ -1,5 +1,6 @@
 import glob
 import io
+import logging
 import os
 import time
 
@@ -9,6 +10,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import yaml
 from PIL import Image
 from cairosvg import svg2png
 from natsort import natsorted
@@ -53,7 +55,7 @@ def save_history(history):
     df = pd.DataFrame.from_dict(history)
     history_path = '/history/{}_history.csv'.format(int(t))
     df.to_csv(history_path)
-    print("History saved to " + history_path)
+    logging.info("History saved to " + history_path)
 
 
 #########################################################  Plotting ###################################################
@@ -197,7 +199,6 @@ def combine_squares_board_image(squares):
     needs 64 squares
     """
     n_squares = len(squares)
-    print("Number of squares: ", n_squares)
     assert n_squares == 64
 
     first_col = squares[0]
@@ -227,22 +228,94 @@ BUGGYYYY
 def fill_dir_with_squares(save_path, squares):
     try:
         os.mkdir(save_path)
-        print("Directory '%s' created" % save_path)
+        logging.info("Directory '%s' created" % save_path)
     except:
-        print("Directory  already exists")
+        logging.warning("Directory  already exists")
     try:
         for k, square in enumerate(squares):
             cv2.imwrite(save_path + "/" + str(k) + '.jpg', square)  # './data/chessboards/squares/' + str(i)
             k += 1
     except:
-        print("Couldnt save the image")
+        logging.warning("Couldnt save the image")
 
 
 def create_dir(parent_dir, dir_name):
     path = os.path.join(parent_dir, dir_name)
     try:
         os.mkdir(path)
-        print("Directory '%s' created" % path)
+        logging.info("Directory '%s' created" % path)
     except:
-        print("Directory  already exists")
+        logging.warning("Directory  already exists")
     return path
+
+
+def read_images(path, n):
+    """
+    read n images from path
+    :param path:
+    :param n:
+    :return:
+    """
+    results = []
+    for i in range(n):
+        img_path = path + "{}.jpg".format(i + 1)
+        logging.info("Read ", img_path)
+        img = cv2.imread(img_path, 1)
+        results.append(img)
+    return results
+
+
+def parse_config(config_path):
+    with open(config_path, "r") as stream:
+        try:
+            return yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            RuntimeError("No Config File, ", exc)
+
+
+class configurator:
+
+    def __init__(self, model_name="InceptionResNetV2", config_path="config.yaml"):
+        self.config = parse_config(config_path)
+
+        self.num_of_classes = self.config["num_of_classes"]
+        self.model_config = self.config[model_name]
+
+        if self.config["model_path"] == "":
+            self.model_path = str(
+                self.config["model_directory"] + str(self.num_of_classes) + "_classes/" + model_name + "/model.h5")
+        else:
+            self.model_path = self.config["model_path"]
+
+        from model import get_preprocess_function
+        self.model_config["preprocess_input"] = get_preprocess_function(model_name)
+
+        self.data_directory = self.config["data_directory"]
+        self.result_directory = self.config["result_directory"]
+        self.model_directory = self.config["model_directory"]
+
+    def get_num_of_classes(self):
+        return self.num_of_classes
+
+    def get_model_config(self):
+        return self.model_config
+
+    def get_model_path(self):
+        return self.model_path
+
+    def get_model_img_size(self):
+        return self.model_config["img_size"]
+
+    def get_model_preprocess(self):
+        return self.model_config["preprocess_input"]
+
+    def parse_config(self, config_path):
+        with open(config_path, "r") as stream:
+            try:
+                return yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                RuntimeError("No Config File, ", exc)
+
+
+if __name__ == '__main__':
+    pass

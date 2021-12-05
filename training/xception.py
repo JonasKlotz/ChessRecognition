@@ -1,6 +1,6 @@
 import sys
 
-# set base path
+# set base path (cluster)
 sys.path.append("/home/users/j/jonasklotz/ChessRecognition")
 
 import logging

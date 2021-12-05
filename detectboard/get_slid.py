@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 
 import chess.pgn
@@ -62,11 +63,10 @@ if __name__ == '__main__':
 
     input_path = args.Path
     img = cv2.imread(input_path, 1)
-    print("Loading board from ", input_path)
+    logging.info("Loading board from ", input_path)
 
     cropped, corners = get_board_slid(input_path)
 
-    print(corners)
     debug.DebugImage(cropped) \
         .save("get_slid_cropped image")
 

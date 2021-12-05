@@ -1,5 +1,7 @@
 """
 Debug utils.
+:author: Czyzewski
+added some stuff
 """
 import itertools
 from copy import copy
@@ -11,7 +13,7 @@ import numpy as np
 
 from detectboard import get_board
 
-DEBUG = True  # Enable or disable debug images
+DEBUG = False  # Enable or disable debug images
 COUNTER = itertools.count()
 DEBUG_SAVE_DIR = "/home/joking/PycharmProjects/Chess_Recognition/debug/"
 

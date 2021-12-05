@@ -19,7 +19,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 classes = 7
-# data_dir = "/home/ubuntu/data/{}_classes".format(classes)
+# data_dir = "/home/ubuntu/data/{}_classes".format(classes) # aws
 # data_dir = "/home/joking/Projects/Chessrecognition/Data/{}_classes".format(classes)
 data_dir = "/home/users/j/jonasklotz/Data/{}_classes".format(classes)  # hpc cluster
 

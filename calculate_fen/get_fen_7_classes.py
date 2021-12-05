@@ -25,7 +25,7 @@ def clear_pawns_back_rank(predictions):
 def find_kings(index_array, piece_colors, board):
     """
     finds kings in predictions
-    @returns updated board
+    :return: updated board
     """
     king = index_array["k"]  # indices of most probable kings reverse
     wk_index, bk_index = -2, -2,
@@ -52,6 +52,11 @@ def find_kings(index_array, piece_colors, board):
 
 # index arrays - sort elements find highest probability of piece
 def create_index_array(predictions):
+    """
+    create index lists( index arrays)
+    :param predictions:
+    :return:
+    """
     bishop = np.argsort(predictions[:, 0])
     empty = np.argsort(predictions[:, 1])
     king = np.argsort(-1 * predictions[:, 2])  # indices of most probable kings reverse
@@ -73,7 +78,7 @@ def create_index_array(predictions):
 
 def get_fen_array(predictions, piece_colors, field_colors, empty_fields):
     """
-
+    calculate final fen array
     :param predictions:
     :param piece_colors:
     :param field_colors:

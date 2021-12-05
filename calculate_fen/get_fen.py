@@ -32,15 +32,14 @@ def get_fen_from_predictions(predictions, squares, num_of_classes):
     fen_array = get_fen_array(predictions, piece_colors, field_colors, empty_fields)
     fen = get_fen_from_array(fen_array)
 
-    # print(fen)
     # display_fen_board(fen, save=False)
 
     return fen
 
 
-def fen_max_prob(predictions, num_of_classes=7):
+def fen_max_prob(predictions):
     """
-    Always choose piece with maximum probability
+    Max Search algorithm only works for 13 classes
     :return:
     """
     board = []

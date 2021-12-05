@@ -65,6 +65,13 @@ def find_board_colour(square_list):
 
 
 def get_piece_colors(square_list, board_color, empty_fields):
+    """
+    calculates colors of pieces
+    :param square_list: square images
+    :param board_color: colors of the board
+    :param empty_fields: bool array -> field empty or not
+    :return:
+    """
     piece_colors = [0] * 64
 
     for i in range(len(square_list)):
@@ -101,7 +108,6 @@ def get_piece_colors(square_list, board_color, empty_fields):
                     piece_colors[i] = 'w'
                 else:
                     piece_colors[i] = 'b'
-    print(piece_colors[35])
     return piece_colors
 
 
@@ -123,7 +129,7 @@ def get_colors(square_list, empty_fields):
 
 def rotate_board(board):
     """
-    :todo unbedingt verschönern
+    manually rotation of a board array
     :param board: chessboard list
     :return:
     """
@@ -139,17 +145,3 @@ def rotate_board(board):
     for i in range(64):
         result.append(board[rotation_list[i]])
     return result
-
-    """
-    if isinstance(board, list):
-        print("LIST")
-        matrix = np.asarray(board).reshape((8, 8))
-        matrix = np.rot90(matrix, 3)
-        return matrix.reshape(64, ).tolist()
-
-    elif isinstance(board, np.ndarray):
-        print("NP ARRAY")
-        print(board.shape)
-        #matrix = np.asarray(board).reshape((8, 8))
-        matrix = np.rot90(board, 3)
-        return matrix#.reshape(64, )"""

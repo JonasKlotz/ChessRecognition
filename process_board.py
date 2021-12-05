@@ -44,6 +44,15 @@ def merge_predictions(preds_list):
 
 
 def process_board(board_img, reloaded_model, img_size, preprocess_input):
+    """
+    processes the given board
+    i.e.
+    :param board_img:
+    :param reloaded_model:
+    :param img_size:
+    :param preprocess_input:
+    :return:
+    """
     squares_list = double_split_board(board_img)
     preds_list = []
 

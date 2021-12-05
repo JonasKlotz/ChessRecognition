@@ -145,7 +145,7 @@ def check_new_piece_found(piece, field_color, used_pieces):
 
 def find_remaining(board, remaining_fields, used_pieces, index_array, field_colors, predictions, fen_gen, piece_colors):
     """
-    
+    finds the remainsing pieces by using TOPS algorithm
     :param board:
     :param remaining_fields:
     :param used_pieces:
@@ -160,10 +160,7 @@ def find_remaining(board, remaining_fields, used_pieces, index_array, field_colo
     while remaining_fields > 0:
         # get the board position of the most probable pieces
         top_index, top_predictions = get_tops(index_array, predictions, fen_gen)
-        # print("tops")
-        # print(fen_gen)
-        # print(top_predictions)
-        # print()
+
         # which is the most likely piece
         piece_index = np.argmax(top_predictions)  # which piece is it?
         piece_name = fen_gen[piece_index]  # namestring in chess notation
