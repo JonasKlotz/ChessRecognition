@@ -25,7 +25,7 @@ def create_index_array(predictions):
     """
 
     :param predictions:
-    :return:
+    :return: index array
     """
     index_array = defaultdict()
     for i, piece_name in enumerate(fen_gen):

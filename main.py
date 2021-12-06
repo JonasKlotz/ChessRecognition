@@ -14,15 +14,18 @@ from process_board import process_board
 logging.basicConfig(filename='output.log', level=logging.INFO)
 
 
-def process_image(path, save=False, model_name='MobileNetV2', board_algorithm=""):
+def process_image(path, save=True, model_name="", board_algorithm=""):
     """
-    
+    processes an image given by a path.
+    serves as main function for a prediction
+    the output is logged to the file "output.log" the result is saved in the result file.
     :param path:
     :param save:
     :param model_name:
     :param board_algorithm:
     :return:
     """
+    # get configuration for the run
     configurator = config.configurator(model_name)
     num_of_classes = configurator.get_num_of_classes()
     model_path = configurator.get_model_path()
@@ -48,6 +51,7 @@ def process_image(path, save=False, model_name='MobileNetV2', board_algorithm=""
     logging.info("load Model from " + model_path)
     reloaded_model = model.load_compiled_model(model_path)
     logging.info("process board")
+
     predictions, squares = process_board(board_img, reloaded_model, img_size, preprocess_input)
     # predictions, squares = process_board_no_scaling(board_img, reloaded_model, img_size, preprocess_input)
     elapsed_time = time.process_time() - start_time
@@ -61,7 +65,7 @@ def process_image(path, save=False, model_name='MobileNetV2', board_algorithm=""
     logging.info("Get Fen took " + str(elapsed_time) + "seconds...")
     print(fen)
 
-    utility.display_fen_board(fen, save=True)
+    utility.display_fen_board(fen, save=save)
 
     return fen
 
@@ -80,6 +84,7 @@ if __name__ == '__main__':
     my_parser.add_argument('-m',
                            '--model_name',
                            type=str,
+                           default="MobileNetV2",
                            help='the model name')
 
     my_parser.add_argument('-b',
@@ -94,17 +99,12 @@ if __name__ == '__main__':
                            action='store_true',
                            help='store the image')
 
-    # Execute parse_args()
+    # parse the arguments
     args = my_parser.parse_args()
-
     input_path = args.Path
     save = args.save
     model_name = args.model_name
     board_recognition = args.board
+    
     logging.info("Loading board from " + input_path)
-
-    if model_name:
-        fen = process_image(input_path, save=save, model_name=model_name, board_algorithm=board_recognition)
-    # print(vars(args))
-    else:
-        fen = process_image(input_path, save=save)
+    fen = process_image(input_path, save=save, model_name=model_name, board_algorithm=board_recognition)

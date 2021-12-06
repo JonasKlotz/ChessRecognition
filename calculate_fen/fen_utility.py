@@ -145,7 +145,7 @@ def check_new_piece_found(piece, field_color, used_pieces):
 
 def find_remaining(board, remaining_fields, used_pieces, index_array, field_colors, predictions, fen_gen, piece_colors):
     """
-    finds the remainsing pieces by using TOPS algorithm
+    finds the remaining pieces by using TOPS algorithm
     :param board:
     :param remaining_fields:
     :param used_pieces:
@@ -184,7 +184,7 @@ def find_remaining(board, remaining_fields, used_pieces, index_array, field_colo
 
 def get_piece_fen(piece_name, piece_colors, field_index):
     """
-
+    determines color of the piece and gets the piece in FEN notation
     :param piece_name:
     :param piece_colors:
     :param field_index:
@@ -210,7 +210,6 @@ def get_fen_from_array(fen_array):
     """
     fen = ""
     empty = 0
-    print(fen_array)
     for i in range(len(fen_array) + 1):
         if i == len(fen_array):
             if empty != 0:  # if last field and still empties
