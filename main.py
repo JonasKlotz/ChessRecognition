@@ -4,31 +4,46 @@ import argparse
 import logging
 import time
 
+import config
 import model
 import utility
 from calculate_fen.get_fen import get_fen_from_predictions
-from detectboard import get_slid
+from detectboard import get_slid, get_board
 from process_board import process_board
 
 logging.basicConfig(filename='output.log', level=logging.INFO)
 
 
-def process_image(path, save=False, model_name='InceptionResNetV2'):
-    configurator = utility.configurator(model_name)
+def process_image(path, save=False, model_name='MobileNetV2', board_algorithm=""):
+    """
+    
+    :param path:
+    :param save:
+    :param model_name:
+    :param board_algorithm:
+    :return:
+    """
+    configurator = config.configurator(model_name)
     num_of_classes = configurator.get_num_of_classes()
     model_path = configurator.get_model_path()
     img_size = configurator.get_model_img_size()
     preprocess_input = configurator.get_model_preprocess()
 
-    # cropped = get_board.get_board(path, show=False)
-    # squares, board_img = get_board.get_squares(cropped, show=False)  #
+    if board_algorithm == "":
+        board_algorithm = configurator.board_algorithm
 
+    # Get the cropped chessboard image
     start_time = time.process_time()
     logging.info("Starting")
-    board_img, corners = get_slid.get_board_slid(path)
+    if board_algorithm == "CPS":
+        board_img, corners = get_slid.get_board_cps(path)  # CPS Implementation
+    else:
+        board_img = get_board.get_board(path)  # my algorithm
+
     elapsed_time = time.process_time() - start_time
     logging.info("Get Board took " + str(elapsed_time) + "seconds...")
 
+    # split it into squares and predict the pieces
     start_time = time.process_time()
     logging.info("load Model from " + model_path)
     reloaded_model = model.load_compiled_model(model_path)
@@ -41,7 +56,7 @@ def process_image(path, save=False, model_name='InceptionResNetV2'):
     # Evaluate Predictions
     start_time = time.process_time()
     fen = get_fen_from_predictions(predictions, squares, num_of_classes=num_of_classes)
-    # fen = fen_max_prob(predictions)
+    # fen = fen_max_prob(predictions) # max search algorithm
     elapsed_time = time.process_time() - start_time
     logging.info("Get Fen took " + str(elapsed_time) + "seconds...")
     print(fen)
@@ -53,7 +68,7 @@ def process_image(path, save=False, model_name='InceptionResNetV2'):
 
 if __name__ == '__main__':
     # Create the parser
-    my_parser = argparse.ArgumentParser(prog='Chessy',
+    my_parser = argparse.ArgumentParser(prog='Single Image Chess Recognition',
                                         description='Chessrecognition programm, evaluates a picture of a chess programm and ')
 
     # Add the arguments
@@ -65,7 +80,14 @@ if __name__ == '__main__':
     my_parser.add_argument('-m',
                            '--model_name',
                            type=str,
-                           help='the modelName')
+                           help='the model name')
+
+    my_parser.add_argument('-b',
+                           '--board',
+                           type=str,
+                           choices=["Mine", "CPS"],
+                           default="Mine",
+                           help='board recognition algorithm to choose')
 
     my_parser.add_argument('-s',
                            '--save',
@@ -78,10 +100,11 @@ if __name__ == '__main__':
     input_path = args.Path
     save = args.save
     model_name = args.model_name
+    board_recognition = args.board
     logging.info("Loading board from " + input_path)
 
     if model_name:
-        fen = process_image(input_path, save=save, model_name=model_name)
+        fen = process_image(input_path, save=save, model_name=model_name, board_algorithm=board_recognition)
     # print(vars(args))
     else:
         fen = process_image(input_path, save=save)
