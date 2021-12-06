@@ -16,11 +16,12 @@ from sklearn.metrics import f1_score
 
 import model
 from calculate_fen.get_fen import get_fen_from_predictions
+from config import configurator
 from detectboard import get_board
-from detectboard.get_slid import get_board_slid
+from detectboard.get_slid import get_board_cps
 # from training.generic_model import get_y_pred, generate_generators, evaluate_model
 from process_board import process_board
-from utility import read_images, configurator
+from utility import read_images
 
 configurator = configurator()
 
@@ -69,7 +70,7 @@ def evaluate_board(index, path):
     try:
         # Evaluate SLID
         start_time = time.time()
-        squares, board_img, corners = get_board_slid(path)
+        squares, board_img, corners = get_board_cps(path)
         elapsed_time_slid = time.time() - start_time
         logging.info("Processing SLID took ", elapsed_time_slid, "seconds...")
         draw_and_save(index, img, corners, res_dir, slid=True)

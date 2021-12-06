@@ -10,7 +10,6 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import yaml
 from PIL import Image
 from cairosvg import svg2png
 from natsort import natsorted
@@ -172,14 +171,12 @@ def load_square(img_path, show=False):
     return img
 
 
-"""
-loads squares from a directory
-@:arg path of dir
-returns images in tensors and img (150, 150)
-"""
-
-
 def load_square_lists_from_dir(dir_path):
+    """
+    loads squares from a directory
+    @:arg path of dir
+    returns images in tensors and img (150, 150)
+    """
     addrs = glob.glob(dir_path + "/*.jpg")
     addrs = natsorted(addrs)
 
@@ -216,13 +213,6 @@ def combine_squares_board_image(squares):
     plt.show()
 
     return first_col
-
-
-# combine_squares_board_image(test_squares)
-"""
-#todo:  update that it uses also save path as input
-BUGGYYYY
-"""
 
 
 def fill_dir_with_squares(save_path, squares):
@@ -263,51 +253,6 @@ def read_images(path, n):
         img = cv2.imread(img_path, 1)
         results.append(img)
     return results
-
-
-def parse_config(config_path):
-    with open(config_path, "r") as stream:
-        try:
-            return yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            RuntimeError("No Config File, ", exc)
-
-
-class configurator:
-
-    def __init__(self, model_name="InceptionResNetV2", config_path="config.yaml"):
-        self.config = parse_config(config_path)
-
-        self.num_of_classes = self.config["num_of_classes"]
-        self.model_config = self.config[model_name]
-
-        if self.config["model_path"] == "":
-            self.model_path = str(
-                self.config["model_directory"] + str(self.num_of_classes) + "_classes/" + model_name + "/model.h5")
-        else:
-            self.model_path = self.config["model_path"]
-
-        from model import get_preprocess_function
-        self.model_config["preprocess_input"] = get_preprocess_function(model_name)
-
-        self.data_directory = self.config["data_directory"]
-        self.result_directory = self.config["result_directory"]
-        self.model_directory = self.config["model_directory"]
-
-    def get_num_of_classes(self):
-        return self.num_of_classes
-
-    def get_model_config(self):
-        return self.model_config
-
-    def get_model_path(self):
-        return self.model_path
-
-    def get_model_img_size(self):
-        return self.model_config["img_size"]
-
-    def get_model_preprocess(self):
-        return self.model_config["preprocess_input"]
 
 
 if __name__ == '__main__':

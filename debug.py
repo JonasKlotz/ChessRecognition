@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from detectboard import get_board
+from utility import fill_dir_with_squares
 
 DEBUG = False  # Enable or disable debug images
 COUNTER = itertools.count()
@@ -28,6 +29,10 @@ def rand_color():
     """Returns a random rgb color."""
     return randint(0, 255), randint(0, 255), randint(0, 255)
 
+
+def debug_squares(squares):
+    if DEBUG:
+        fill_dir_with_squares(DEBUG_SAVE_DIR + "squares", squares)
 
 class DebugImage:
     """
