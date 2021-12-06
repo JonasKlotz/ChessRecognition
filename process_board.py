@@ -1,5 +1,5 @@
 # Mobile Net V2
-
+import debug
 import model
 import utility
 
@@ -61,7 +61,7 @@ def process_board(board_img, reloaded_model, img_size, preprocess_input):
         # get Predictions
         predictions = model.get_predictions(reloaded_model, tensor_list)
         preds_list.append(predictions)
-        # utility.fill_dir_with_squares("/tmp", squares)
+        debug.debug_squares(squares)
 
     predictions = merge_predictions(preds_list)
     return predictions, squares_list[0]

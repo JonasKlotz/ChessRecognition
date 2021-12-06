@@ -21,7 +21,7 @@ def split_board(img):
     return arr
 
 
-def get_board_slid(board_path):
+def get_board_cps(board_path):
     """
 
     :param board_path: path to a board image
@@ -49,7 +49,7 @@ def pgn_to_fen_list(png_path):
 
 if __name__ == '__main__':
     # Create the parser
-    my_parser = argparse.ArgumentParser(prog='Chessy',
+    my_parser = argparse.ArgumentParser(prog='CPS',
                                         description='Chessrecognition programm, evaluates a picture of a chess programm and ')
 
     # Add the arguments
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     img = cv2.imread(input_path, 1)
     logging.info("Loading board from ", input_path)
 
-    cropped, corners = get_board_slid(input_path)
+    cropped, corners = get_board_cps(input_path)
 
     debug.DebugImage(cropped) \
         .save("get_slid_cropped image")

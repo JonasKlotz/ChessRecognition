@@ -301,6 +301,15 @@ def four_point_transform(img, points, square_length=1816):
     return cv2.warpPerspective(img, M, (square_length, square_length))
 
 
+def get_corner_order(points, img_dim):
+    board_corners = []
+    img_corners = [(0, 0), (0, img_dim[1]), img_dim, (img_dim[0], 0)]
+
+    for point in img_corners:
+        board_corners.append(closest_point(points, point))
+    return board_corners
+
+
 def get_points(img=None, img_path=None):
     """
     Main Function to find points
@@ -346,7 +355,6 @@ def get_points(img=None, img_path=None):
             # find intersections
             points = intersections(h, v, [height, width])
 
-            # Todo: Was wenn ich nicht davor clustere, wie wirkt sich das auf mein Endergebnis aus?
             points = cluster(points)
             # print_points(points, img)
             # all_points.append(points)
@@ -393,24 +401,23 @@ def get_points(img=None, img_path=None):
     return corners
 
 
+def get_board(img_path):
+    img = cv2.imread(img_path, 1)
+
+    img_dim = np.shape(img)
+    img_dim = (img_dim[1], img_dim[0])
+
+    corners = get_points(img=img)
+
+    board_corners = get_corner_order(corners, img_dim)
+    cropped = four_point_transform(img, board_corners)
+    debug.DebugImage(cropped) \
+        .save("cropped_image")
+    return cropped
+
+
 if __name__ == '__main__':
-    """# Create the parser
-    my_parser = argparse.ArgumentParser(prog='chess_recognition',
-                                        description='Chessrecognition programm, evaluates a picture of a chess programm and ...')
 
-    # Add the arguments
-    my_parser.add_argument('Path',
-                           metavar='image_path',
-                           type=str,
-                           help='the path to the image')
-
-    # Execute parse_args()
-    args = my_parser.parse_args()
-
-    input_path = args.Path
-
-    # print(vars(args))
-    """
     for i in range(29, 31):
         input_path = "/home/joking/Projects/Chessrecognition/Data/chessboards/board_recog/{}.jpg".format(i)
         print("Loading board from ", input_path)
@@ -422,4 +429,4 @@ if __name__ == '__main__':
         debug.DebugImage(img) \
             .points(corners, color=(0, 0, 255)) \
             .save("get_points_main_corners")
-    # squares, board_img, corners = get_slid.get_board_slid(input_path)
+    # squares, board_img, corners = get_slid.get_board_cps(input_path)
