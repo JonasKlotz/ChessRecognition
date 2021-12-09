@@ -5,13 +5,31 @@
 ## Setup
 - install requirements from file
 - create debug folder in the project
+- update the config.yaml file with filepaths and data directories
+- download models and data from [here](https://tubcloud.tu-berlin.de/s/ANxmJdgYGQ8rK3b)
+
+__Dependencies:__
+
+- [Python 3](https://www.python.org/downloads/)
+- [OpenCV 2](http://opencv.org/)
+- [Tensorflow](https://www.tensorflow.org/)
+
+----
 
 
-## Find the corners
-- There are two  files that search for corners in a given picture
-- Get Slid for [Maciej A. Czyzewski's Algorithm](https://arxiv.org/abs/1708.03898)
-    - Usage eg: python3 get_slid.py data/chessboards/1.jpg
-    - prints corner points, saves cropped board and a corner image in debug folder
-- Get Points for my implementation ( not finished)
-    - Usage eg:  python3 get_points.py data/chessboards/1.jpg
-    - prints corner points, saves cropped board and a corner image in debug folder
+## Run main file
+> python3 main.py testing_images/21.jpg -b'CPS' -m'MobileNetV2'
+
+Arguments are:
+    - b for choosing the board recognition algorithm, either 'Mine' or 'CPS'
+    - m for choosing the Model e.g. 'MobileNetV2', 'NASNetMobile', 'InceptionResNetV2', or 'Xception'
+    
+Before utilising checking the model paths or giving a specific model path in the config is recommended
+## Acknowledgements
+- CPS from [Maciej A. Czyzewski's Algorithm](https://arxiv.org/abs/1708.03898)
+- With improvements of [Quintana et al.](https://arxiv.org/abs/2012.06858)
+
+
+## Workflow:
+
+![](readme/thesis_flow.gif)

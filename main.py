@@ -97,6 +97,7 @@ if __name__ == '__main__':
     my_parser.add_argument('-s',
                            '--save',
                            action='store_true',
+                           default=True,
                            help='store the image')
 
     # parse the arguments
@@ -105,6 +106,6 @@ if __name__ == '__main__':
     save = args.save
     model_name = args.model_name
     board_recognition = args.board
-    
+
     logging.info("Loading board from " + input_path)
     fen = process_image(input_path, save=save, model_name=model_name, board_algorithm=board_recognition)
