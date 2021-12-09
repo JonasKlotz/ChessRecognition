@@ -1,6 +1,6 @@
 # ChessRecognition
 
-## Work in Progress
+This is the repository related to my Bachelor Thesis, regarding image-based chess board and piece recognition. The thesis will be linked here soon.
 
 ## Setup
 - install requirements from file
