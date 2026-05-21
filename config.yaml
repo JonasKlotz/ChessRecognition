@@ -1,17 +1,16 @@
 ---
-# comments
-
 num_of_classes: 13
 
+# Keras model paths (legacy — used by the existing inference pipeline)
 model_path: ''
-model_directory: '/home/joking/PycharmProjects/Chess_Recognition/models/'
+model_directory: 'data/13_classes'
 
-board_algorithm: 'CPS' # use 'CPS' for CPS algorithm
+board_algorithm: 'CPS'  # 'CPS' or 'Mine'
 
-data_directory: '/home/joking/PycharmProjects/Chess_Recognition/testing_images'
-result_directory: '/home/joking/PycharmProjects/Chess_Recognition/'
+data_directory: 'testing_images'
+result_directory: '.'
 
-default: InceptionResnetV2
+default: MobileNetV2
 
 MobileNetV2:
   model_name: "MobileNetV2"
@@ -28,4 +27,10 @@ InceptionResNetV2:
 Xception:
   model_name: 'Xception'
   img_size: 299
+
+# PyTorch model paths (new pipeline)
+piece_model_path: 'checkpoints/pieces/best.ckpt'
+orientation_model_path: 'checkpoints/orientation/best.ckpt'
+piece_backbone: 'vit_small_patch16_224.dino'
+orientation_backbone: 'mobilenetv3_small_100'
 

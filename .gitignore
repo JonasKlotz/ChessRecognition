@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+.venv/
+
+# uv
+.uv/
+
+# Data (large files — keep locally, not in repo)
+data/
+papers/
+checkpoints/
+
+# Debug output
+debug/
+output.log
+*.fen
+result*.png
+
+# Jupyter
+.ipynb_checkpoints/
